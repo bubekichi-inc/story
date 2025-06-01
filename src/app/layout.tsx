@@ -9,7 +9,7 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: 'StoriesAI - ストーリーズをテキスト投稿に変換',
+  title: 'StoryCastAI - ストーリーズをテキスト投稿に変換',
   description: 'インスタグラムストーリーをX（旧Twitter）やThreads用のテキスト投稿に変換します。',
 };
 

@@ -8,7 +8,7 @@ export default function Footer() {
           <div>
             <Link href="/" className="inline-block">
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text">
-                StoriesAI
+                StoryCastAI
               </span>
             </Link>
             <p className="mt-4 text-gray-600">
@@ -65,7 +65,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-gray-500 text-sm text-center">
-            &copy; {new Date().getFullYear()} StoriesAI. All rights reserved.
+            &copy; {new Date().getFullYear()} StoryCastAI. All rights reserved.
           </p>
         </div>
       </div>

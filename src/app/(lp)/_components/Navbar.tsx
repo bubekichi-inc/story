@@ -16,7 +16,7 @@ export default function Navbar({ onOpenModal }: NavbarProps) {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text">
-                StoriesAI
+                StoryCastAI
               </span>
             </Link>
           </div>
