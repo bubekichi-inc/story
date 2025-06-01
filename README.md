@@ -1,5 +1,27 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Setup
+
+1. Copy the environment variables file:
+```bash
+cp .env.example .env
+```
+
+2. Update the `.env` file with your actual values:
+   - `DATABASE_URL`: Your Supabase PostgreSQL connection string
+   - `SENDGRID_API_KEY`: Your SendGrid API key
+   - `ADMIN_EMAIL`: Email address for admin notifications
+
+3. Generate the Prisma client:
+```bash
+npm run db:generate
+```
+
+4. Push the database schema (for development):
+```bash
+npm run db:push
+```
+
 ## Getting Started
 
 First, run the development server:
