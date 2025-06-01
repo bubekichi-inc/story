@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Send } from 'lucide-react';
-import { registerEmail } from '@/app/_actions/registration';
+import { registerEmail } from '@/app/(lp)/_actions/registration';
 
 interface RegistrationFormProps {
   variant?: 'default' | 'modal';
@@ -30,7 +30,7 @@ export default function RegistrationForm({
 
     try {
       const result = await registerEmail(email);
-      
+
       if (result.success) {
         setStatus('success');
         setMessage(result.message || 'ご登録ありがとうございます！');

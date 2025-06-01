@@ -42,7 +42,7 @@ export async function registerEmail(email: string): Promise<RegistrationResult> 
 
     // Send notification emails
     const sendGridService = new SendGridService();
-    
+
     // Email to the registrant
     const userEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -85,7 +85,6 @@ export async function registerEmail(email: string): Promise<RegistrationResult> 
       success: true,
       message: 'ご登録ありがとうございます！アーリーアクセスの準備が整いましたらご連絡いたします。',
     };
-
   } catch (error) {
     console.error('Registration error:', error);
     return {
