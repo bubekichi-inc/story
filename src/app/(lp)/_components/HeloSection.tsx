@@ -13,7 +13,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
   const [displayedTitle, setDisplayedTitle] = useState('');
   const fullTextThreads =
     '朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り';
-  const fullTitle = '_ストーリーズ芸人に朗報';
+  const fullTitle = 'ストーリーズ芸人に朗報';
 
   const animationRef = useRef<HTMLDivElement>(null);
 
@@ -82,7 +82,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
     <section className="py-10 pb-16 md:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-6 md:space-y-10">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight relative">
+          <h1 className="text-3xl md:text-5xl flex justify-center lg:text-6xl font-black tracking-tight relative">
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text relative z-10 flex items-center">
               {displayedTitle}
               <span
