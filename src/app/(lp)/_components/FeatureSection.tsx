@@ -5,34 +5,35 @@ export default function FeaturesSection() {
   const features = [
     {
       icon: <Upload className="w-8 h-8 text-purple-600" />,
-      title: "一括アップロード",
-      description: "複数のインスタストーリーを一度にアップロード。手作業による時間のロスを解消します。"
+      title: '一括アップロード',
+      description:
+        '複数のインスタストーリーを一度にアップロード。手作業による時間のロスを解消します。',
     },
     {
       icon: <Calendar className="w-8 h-8 text-purple-600" />,
-      title: "柔軟な投稿スケジュール",
-      description: "カスタム投稿スケジュールを作成し、時間帯や間隔を自由に設定できます。"
+      title: '柔軟な投稿スケジュール',
+      description: 'カスタム投稿スケジュールを作成し、時間帯や間隔を自由に設定できます。',
     },
     {
       icon: <RefreshCw className="w-8 h-8 text-purple-600" />,
-      title: "クロスプラットフォーム投稿",
-      description: "1回のアップロードで、Instagram、X、Threadsに同時投稿が可能です。"
+      title: 'クロスプラットフォーム投稿',
+      description: '1回のアップロードで、Instagram、X、Threadsに同時投稿が可能です。',
     },
     {
       icon: <BrainCircuit className="w-8 h-8 text-purple-600" />,
-      title: "AIキャプション生成",
-      description: "AIが画像を分析し、魅力的で関連性の高いキャプションを自動生成します。"
+      title: 'AIキャプション生成',
+      description: 'AIが画像を分析し、魅力的で関連性の高いキャプションを自動生成します。',
     },
     {
       icon: <Share2 className="w-8 h-8 text-purple-600" />,
-      title: "マルチアカウント対応",
-      description: "複数のSNSアカウントを接続し、1つのダッシュボードで一元管理できます。"
+      title: 'マルチアカウント対応',
+      description: '複数のSNSアカウントを接続し、1つのダッシュボードで一元管理できます。',
     },
     {
       icon: <Clock className="w-8 h-8 text-purple-600" />,
-      title: "時間節約の自動化",
-      description: "コンテンツの再利用と投稿スケジューリングを自動化し、毎週何時間も節約できます。"
-    }
+      title: '時間節約の自動化',
+      description: 'コンテンツの再利用と投稿スケジューリングを自動化し、毎週何時間も節約できます。',
+    },
   ];
 
   return (
@@ -51,9 +52,7 @@ export default function FeaturesSection() {
               key={index}
               className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300"
             >
-              <div className="mb-4 p-3 bg-purple-50 inline-block rounded-lg">
-                {feature.icon}
-              </div>
+              <div className="mb-4 p-3 bg-purple-50 inline-block rounded-lg">{feature.icon}</div>
               <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
               <p className="text-gray-600">{feature.description}</p>
             </div>

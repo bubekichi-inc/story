@@ -40,15 +40,15 @@ export default function Navbar() {
             <Link href="#how-it-works" className="text-gray-700 hover:text-gray-900 font-medium">
               使い方
             </Link>
-            <Link href="#register" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-5 py-2 hover:opacity-90 transition-opacity">
+            <Link
+              href="#register"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-5 py-2 hover:opacity-90 transition-opacity"
+            >
               事前登録
             </Link>
           </nav>
 
-          <button
-            className="md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-          >
+          <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>

@@ -11,9 +11,11 @@ export default function HeroSection() {
   const [displayedTextThreads, setDisplayedTextThreads] = useState('');
   const [displayedTitle, setDisplayedTitle] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const fullTextX = "新しく見つけたスムージーボウルのお店が最高でした！アサイーの甘さが絶妙で、トッピングも新鮮。この界隈にお住まいの方は絶対チェックすべき！#グルメ #ヘルシー";
-  const fullTextThreads = "朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り";
-  const fullTitle = "_ストーリーズ芸人に朗報";
+  const fullTextX =
+    '新しく見つけたスムージーボウルのお店が最高でした！アサイーの甘さが絶妙で、トッピングも新鮮。この界隈にお住まいの方は絶対チェックすべき！#グルメ #ヘルシー';
+  const fullTextThreads =
+    '朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り';
+  const fullTitle = '_ストーリーズ芸人に朗報';
 
   const animationRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +54,7 @@ export default function HeroSection() {
     let titleIndex = 0;
     const titleInterval = setInterval(() => {
       if (titleIndex < fullTitle.length) {
-        setDisplayedTitle(prev => prev + fullTitle.charAt(titleIndex));
+        setDisplayedTitle((prev) => prev + fullTitle.charAt(titleIndex));
         titleIndex++;
       } else {
         clearInterval(titleInterval);
@@ -72,7 +74,7 @@ export default function HeroSection() {
 
     const intervalX = setInterval(() => {
       if (indexX < fullTextX.length) {
-        setDisplayedTextX(prev => prev + fullTextX.charAt(indexX));
+        setDisplayedTextX((prev) => prev + fullTextX.charAt(indexX));
         indexX++;
       } else {
         clearInterval(intervalX);
@@ -82,7 +84,7 @@ export default function HeroSection() {
     const threadsTimeout = setTimeout(() => {
       const intervalThreads = setInterval(() => {
         if (indexThreads < fullTextThreads.length) {
-          setDisplayedTextThreads(prev => prev + fullTextThreads.charAt(indexThreads));
+          setDisplayedTextThreads((prev) => prev + fullTextThreads.charAt(indexThreads));
           indexThreads++;
         } else {
           clearInterval(intervalThreads);
@@ -105,7 +107,9 @@ export default function HeroSection() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 relative">
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text relative z-10">
               {displayedTitle}
-              <span className={`inline-block h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-1 ${displayedTitle.length === fullTitle.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}></span>
+              <span
+                className={`inline-block h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-1 ${displayedTitle.length === fullTitle.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
+              ></span>
             </span>
           </h1>
           <p className="text-base md:text-lg text-gray-600 mb-8">
@@ -119,10 +123,7 @@ export default function HeroSection() {
           </button>
         </div>
 
-        <div
-          ref={animationRef}
-          className="relative max-w-5xl mx-auto mt-16"
-        >
+        <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16">
           {/* アニメーションコンテナ */}
           <div className="relative h-[800px] md:h-[600px] bg-gray-50 rounded-2xl shadow-xl overflow-hidden">
             {/* Instagram Story */}
@@ -138,24 +139,42 @@ export default function HeroSection() {
             </div>
 
             {/* アニメーション矢印 */}
-            <div className={`absolute top-[450px] md:top-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-500`}>
+            <div
+              className={`absolute top-[450px] md:top-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-500`}
+            >
               <div className="h-12 w-32 md:w-40 bg-gradient-to-r from-purple-500 to-transparent rounded-full flex items-center justify-center">
                 <svg className="w-24 h-8 text-white" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M5 12H19M19 12L13 6M19 12L13 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
             </div>
 
-            <div className={`absolute top-[550px] md:bottom-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}>
+            <div
+              className={`absolute top-[550px] md:bottom-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}
+            >
               <div className="h-12 w-32 md:w-40 bg-gradient-to-r from-pink-500 to-transparent rounded-full flex items-center justify-center">
                 <svg className="w-24 h-8 text-white" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M5 12H19M19 12L13 6M19 12L13 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </div>
             </div>
 
             {/* X Post */}
-            <div className={`absolute top-[500px] md:top-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1000`}>
+            <div
+              className={`absolute top-[500px] md:top-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1000`}
+            >
               <div className="flex items-center mb-3">
                 <div className="h-10 w-10 rounded-full bg-gray-200"></div>
                 <div className="ml-3">
@@ -164,13 +183,17 @@ export default function HeroSection() {
                 </div>
               </div>
               <div className="text-sm">
-                <p>{displayedTextX || " "}</p>
-                <span className={`inline-block h-4 w-1 bg-gray-900 ${displayedTextX.length === fullTextX.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}></span>
+                <p>{displayedTextX || ' '}</p>
+                <span
+                  className={`inline-block h-4 w-1 bg-gray-900 ${displayedTextX.length === fullTextX.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
+                ></span>
               </div>
             </div>
 
             {/* Threads Post */}
-            <div className={`absolute top-[650px] md:bottom-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}>
+            <div
+              className={`absolute top-[650px] md:bottom-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
+            >
               <div className="flex items-center mb-3">
                 <div className="h-10 w-10 rounded-full bg-gray-200"></div>
                 <div className="ml-3">
@@ -179,8 +202,10 @@ export default function HeroSection() {
                 </div>
               </div>
               <div className="text-sm">
-                <p>{displayedTextThreads || " "}</p>
-                <span className={`inline-block h-4 w-1 bg-gray-900 ${displayedTextThreads.length === fullTextThreads.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}></span>
+                <p>{displayedTextThreads || ' '}</p>
+                <span
+                  className={`inline-block h-4 w-1 bg-gray-900 ${displayedTextThreads.length === fullTextThreads.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
+                ></span>
               </div>
             </div>
           </div>
@@ -198,12 +223,10 @@ export default function HeroSection() {
         ariaHideApp={false}
       >
         <div className="text-center">
-          <p className="text-3xl md:text-4xl font-bold text-white mb-6">
-                事前登録
-              </p>
-              <p className="text-xl text-white/90 mb-8 md:mb-10">
-                リリース時、メールでお知らせいたします。
-              </p>
+          <p className="text-3xl md:text-4xl font-bold text-white mb-6">事前登録</p>
+          <p className="text-xl text-white/90 mb-8 md:mb-10">
+            リリース時、メールでお知らせいたします。
+          </p>
 
           <RegistrationForm variant="modal" onSuccess={closeModal} />
 
