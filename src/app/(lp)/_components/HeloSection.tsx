@@ -2,18 +2,29 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import Modal from 'react-modal';
+import RegistrationForm from './RegistrationForm';
 
 export default function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [displayedTextX, setDisplayedTextX] = useState('');
   const [displayedTextThreads, setDisplayedTextThreads] = useState('');
   const [displayedTitle, setDisplayedTitle] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fullTextX = "新しく見つけたスムージーボウルのお店が最高でした！アサイーの甘さが絶妙で、トッピングも新鮮。この界隈にお住まいの方は絶対チェックすべき！#グルメ #ヘルシー";
   const fullTextThreads = "朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り";
   const fullTitle = "_ストーリーズ芸人に朗報";
 
   const animationRef = useRef<HTMLDivElement>(null);
+
+  // モーダル関連の関数
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     // タイトルアニメーションは即座に開始
@@ -100,12 +111,12 @@ export default function HeroSection() {
           <p className="text-base md:text-lg text-gray-600 mb-8">
             大量に溜まっているストーリーズ画像、自動でランダム投稿＋AI文字起こしでThreadsやXに同時投稿してインプを倍増させましょう。
           </p>
-          <Link
-            href="#register"
+          <button
+            onClick={openModal}
             className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition duration-300"
           >
             事前登録する
-          </Link>
+          </button>
         </div>
 
         <div
@@ -175,6 +186,32 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* 事前登録モーダル */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        className="relative max-w-lg mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-3xl shadow-2xl p-8 mt-20"
+        overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center px-4 z-50"
+        shouldCloseOnOverlayClick={true}
+        shouldCloseOnEsc={true}
+        ariaHideApp={false}
+      >
+        <div className="text-center">
+          <p className="text-3xl md:text-4xl font-bold text-white mb-6">
+                事前登録
+              </p>
+              <p className="text-xl text-white/90 mb-8 md:mb-10">
+                リリース時、メールでお知らせいたします。
+              </p>
+
+          <RegistrationForm variant="modal" onSuccess={closeModal} />
+
+          <p className="mt-6 text-sm text-white/80">
+            登録は無料です。製品アップデートについてのみご連絡いたします。
+          </p>
+        </div>
+      </Modal>
     </section>
   );
 }
