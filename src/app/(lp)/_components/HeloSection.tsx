@@ -94,19 +94,19 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
 
   return (
     <section className="pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 relative">
-            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-6 md:space-y-10">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight relative">
+            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text relative z-10 flex items-center">
               {displayedTitle}
               <span
-                className={`inline-block h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-1 ${displayedTitle.length === fullTitle.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
+                className={`inline-block h-10 md:h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-2 ${displayedTitle.length === fullTitle.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
               ></span>
             </span>
           </h1>
-          <div className="text-base md:text-lg text-gray-600 mb-8">
+          <div className="text-base md:text-lg text-gray-600">
             <p> 大量に溜まっているストーリーズ画像、</p>
-            <p>自動でランダム投稿＋AI文字起こしで他SNS横展でインプを倍増させましょう。</p>
+            <p>自動でランダム投稿 ＋ AIで各SNSに横展してインプを倍増させましょう。</p>
           </div>
           <button
             onClick={onOpenModal}
