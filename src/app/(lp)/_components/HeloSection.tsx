@@ -8,12 +8,17 @@ export default function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [displayedTextX, setDisplayedTextX] = useState('');
   const [displayedTextThreads, setDisplayedTextThreads] = useState('');
+  const [displayedTitle, setDisplayedTitle] = useState('');
   const fullTextX = "新しく見つけたスムージーボウルのお店が最高でした！アサイーの甘さが絶妙で、トッピングも新鮮。この界隈にお住まいの方は絶対チェックすべき！#グルメ #ヘルシー";
   const fullTextThreads = "朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り";
+  const fullTitle = "_ストーリーズ芸人に朗報";
 
   const animationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // タイトルアニメーションは即座に開始
+    setIsVisible(true);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -29,6 +34,23 @@ export default function HeroSection() {
     }
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // タイトルのタイピングアニメーション - 即座に開始
+    let titleIndex = 0;
+    const titleInterval = setInterval(() => {
+      if (titleIndex < fullTitle.length) {
+        setDisplayedTitle(prev => prev + fullTitle.charAt(titleIndex));
+        titleIndex++;
+      } else {
+        clearInterval(titleInterval);
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(titleInterval);
+    };
   }, []);
 
   useEffect(() => {
@@ -69,9 +91,10 @@ export default function HeroSection() {
     <section className="pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6">
-            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text">
-              ストーリーズ芸人に朗報
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 relative">
+            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text relative z-10">
+              {displayedTitle}
+              <span className={`inline-block h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-1 ${displayedTitle.length === fullTitle.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}></span>
             </span>
           </h1>
           <p className="text-base md:text-lg text-gray-600 mb-8">
