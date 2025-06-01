@@ -239,40 +239,6 @@ export default function HeroSection() {
         shouldCloseOnEsc={true}
         ariaHideApp={false}
       >
-        {/* モーダル内のキラキラエフェクト */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl">
-          <div
-            className={`absolute top-4 left-4 w-2 h-2 bg-white/30 rounded-full sparkle-animation ${
-              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-            }`}
-            style={{ animationDelay: '200ms' }}
-          ></div>
-          <div
-            className={`absolute top-8 right-8 w-1 h-1 bg-white/40 rounded-full sparkle-animation ${
-              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-            }`}
-            style={{ animationDelay: '400ms' }}
-          ></div>
-          <div
-            className={`absolute bottom-8 left-8 w-1.5 h-1.5 bg-white/20 rounded-full sparkle-animation ${
-              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-            }`}
-            style={{ animationDelay: '600ms' }}
-          ></div>
-          <div
-            className={`absolute bottom-4 right-12 w-1 h-1 bg-white/50 rounded-full sparkle-animation ${
-              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-            }`}
-            style={{ animationDelay: '800ms' }}
-          ></div>
-          <div
-            className={`absolute top-1/2 left-1/4 w-1 h-1 bg-white/25 rounded-full sparkle-animation ${
-              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-            }`}
-            style={{ animationDelay: '1000ms' }}
-          ></div>
-        </div>
-
         <div className="text-center relative z-10">
           {/* 閉じるボタン */}
           <button
@@ -304,7 +270,7 @@ export default function HeroSection() {
               isModalContentVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
-            <p className="text-3xl md:text-4xl font-bold text-white mb-6 floating-animation">
+            <p className="text-3xl md:text-4xl font-bold text-white mb-6">
               事前登録
             </p>
           </div>
