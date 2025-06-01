@@ -128,9 +128,8 @@ export default function HeroSection() {
             onClick={openModal}
             className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95 relative overflow-hidden group"
           >
-            <span className="relative z-10">事前登録する</span>
+            <span className="relative z-10 font-bold">事前登録する</span>
             <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 animate-pulse"></div>
           </button>
         </div>
 
@@ -266,13 +265,11 @@ export default function HeroSection() {
           </button>
 
           <div
-            className={`transform transition-all duration-700 ease-out ${
+            className={`transform flex justify-center mx-20 transition-all duration-700 ease-out ${
               isModalContentVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
-            <p className="text-3xl md:text-4xl font-bold text-white mb-6">
-              事前登録
-            </p>
+            <p className="text-3xl md:text-4xl font-bold text-white mb-6">事前登録</p>
           </div>
 
           <div
