@@ -104,9 +104,10 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               ></span>
             </span>
           </h1>
-          <p className="text-base md:text-lg text-gray-600 mb-8">
-            大量に溜まっているストーリーズ画像、自動でランダム投稿＋AI文字起こしでThreadsやXに同時投稿してインプを倍増させましょう。
-          </p>
+          <div className="text-base md:text-lg text-gray-600 mb-8">
+            <p> 大量に溜まっているストーリーズ画像、</p>
+            <p>自動でランダム投稿＋AI文字起こしで他SNS横展でインプを倍増させましょう。</p>
+          </div>
           <button
             onClick={onOpenModal}
             className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95 relative overflow-hidden group"
