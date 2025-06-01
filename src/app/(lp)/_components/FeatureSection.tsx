@@ -1,5 +1,6 @@
 import React from 'react';
 import { Upload, Calendar, RefreshCw, Share2, Clock, BrainCircuit } from 'lucide-react';
+import { FadeAnimation } from './FadeAnimation';
 
 export default function FeaturesSection() {
   const features = [
@@ -37,28 +38,31 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="py-16 md:py-24 bg-[#f5f8fa]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">主な機能</h2>
-          <p className="text-xl text-gray-600">
-            ストーリーズをテキスト投稿に変換するために必要な全ての機能を提供します
-          </p>
-        </div>
+    <FadeAnimation>
+      <section id="features" className="py-16 md:py-24 bg-[#f5f8fa]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">主な機能</h2>
+            <p className="text-xl text-gray-600">
+              ストーリーズをテキスト投稿に変換するために必要な全ての機能を提供します
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="mb-4 p-3 bg-purple-50 inline-block rounded-lg">{feature.icon}</div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <FadeAnimation key={index}>
+                <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <div className="mb-4 p-3 bg-purple-50 inline-block rounded-lg">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </div>
+              </FadeAnimation>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </FadeAnimation>
   );
 }

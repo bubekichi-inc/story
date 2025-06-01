@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
+import { FadeAnimation } from './FadeAnimation';
 
 interface HeroSectionProps {
   onOpenModal: () => void;
@@ -107,55 +108,57 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
           </button>
         </div>
 
-        <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16">
-          {/* アニメーションコンテナ */}
-          <div className="relative h-[800px] md:h-[600px] bg-[#f5f8fa] rounded-2xl shadow-xl overflow-hidden">
-            {/* Instagram Story */}
-            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 md:top-1/2 md:-translate-y-1/2 w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
-              <Image
-                src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg"
-                alt="Instagram Story - スムージーボウル"
-                className="w-full h-full object-cover"
-                width={300}
-                height={600}
-                priority
-              />
-            </div>
-
-            {/* アニメーション矢印 */}
-            <div
-              className={`absolute top-[550px] md:bottom-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}
-            >
-              <div className="h-12 w-32 md:w-40 bg-gradient-to-r from-pink-500 to-transparent rounded-full flex items-center justify-center">
-                <svg className="w-24 h-8 text-white" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M5 12H19M19 12L13 6M19 12L13 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+        <FadeAnimation>
+          <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16">
+            {/* アニメーションコンテナ */}
+            <div className="relative h-[800px] md:h-[600px] bg-[#f5f8fa] rounded-2xl shadow-xl overflow-hidden">
+              {/* Instagram Story */}
+              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 md:top-1/2 md:-translate-y-1/2 w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
+                <Image
+                  src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg"
+                  alt="Instagram Story - スムージーボウル"
+                  className="w-full h-full object-cover"
+                  width={300}
+                  height={600}
+                  priority
+                />
               </div>
-            </div>
 
-            {/* Threads Post */}
-            <div
-              className={`absolute top-[650px] md:bottom-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
-            >
-              <div className="flex items-center mb-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200"></div>
-                <div className="ml-3">
-                  <p className="font-semibold text-sm">ユーザー名</p>
-                  <p className="text-gray-500 text-xs">@username</p>
+              {/* アニメーション矢印 */}
+              <div
+                className={`absolute top-[550px] md:bottom-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}
+              >
+                <div className="h-12 w-32 md:w-40 bg-gradient-to-r from-pink-500 to-transparent rounded-full flex items-center justify-center">
+                  <svg className="w-24 h-8 text-white" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M5 12H19M19 12L13 6M19 12L13 18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </div>
               </div>
-              <div className="text-sm">
-                <p>{displayedTextThreads || ' '}</p>
+
+              {/* Threads Post */}
+              <div
+                className={`absolute top-[650px] md:bottom-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
+              >
+                <div className="flex items-center mb-3">
+                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                  <div className="ml-3">
+                    <p className="font-semibold text-sm">ユーザー名</p>
+                    <p className="text-gray-500 text-xs">@username</p>
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <p>{displayedTextThreads || ' '}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </FadeAnimation>
       </div>
     </section>
   );
