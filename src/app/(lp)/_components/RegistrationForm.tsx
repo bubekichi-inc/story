@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Send } from 'lucide-react';
+import { registerEmail } from '@/app/_actions/registration';
 
 interface RegistrationFormProps {
   variant?: 'default' | 'modal';
@@ -27,17 +28,24 @@ export default function RegistrationForm({
 
     setStatus('submitting');
 
-    // APIコール（デモ用のタイムアウト）
-    setTimeout(() => {
-      setStatus('success');
-      setMessage(
-        'ご登録ありがとうございます！アーリーアクセスの準備が整いましたらご連絡いたします。'
-      );
-      setEmail('');
-      if (onSuccess) {
-        setTimeout(onSuccess, 1500); // 成功メッセージを少し表示してからコールバック実行
+    try {
+      const result = await registerEmail(email);
+      
+      if (result.success) {
+        setStatus('success');
+        setMessage(result.message || 'ご登録ありがとうございます！');
+        setEmail('');
+        if (onSuccess) {
+          setTimeout(onSuccess, 1500); // 成功メッセージを少し表示してからコールバック実行
+        }
+      } else {
+        setStatus('error');
+        setMessage(result.error || '登録中にエラーが発生しました。');
       }
-    }, 1000);
+    } catch (error) {
+      setStatus('error');
+      setMessage('登録中にエラーが発生しました。しばらく時間をおいて再度お試しください。');
+    }
   };
 
   const isModal = variant === 'modal';

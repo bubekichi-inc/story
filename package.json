@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@sendgrid/mail": "^8.1.5",
     "@types/react-modal": "^3.16.3",
     "lucide-react": "^0.511.0",
     "next": "15.3.3",
+    "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-intersection-observer": "^9.16.0",
@@ -23,6 +26,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sendgrid": "^2.0.31",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "eslint-plugin-import": "^2.31.0",
