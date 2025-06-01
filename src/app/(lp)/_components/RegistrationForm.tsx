@@ -42,7 +42,7 @@ export default function RegistrationForm({
         setStatus('error');
         setMessage(result.error || '登録中にエラーが発生しました。');
       }
-    } catch (error) {
+    } catch {
       setStatus('error');
       setMessage('登録中にエラーが発生しました。しばらく時間をおいて再度お試しください。');
     }
