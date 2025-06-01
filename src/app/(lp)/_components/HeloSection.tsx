@@ -71,13 +71,11 @@ export default function HeroSection() {
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text">
-              ストーリーズを
+              ストーリーズ芸人に朗報
             </span>
-            <br />
-            <span>テキスト投稿に変換</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-8">
-            AIを活用してインスタグラムストーリーをX（旧Twitter）やThreads用の投稿に自動変換。ソーシャルメディア運用を効率化します。
+            大量に溜まっているストーリーズ画像、ランダムで再投稿＋AIで文字起こししてThreadsやXに同時投稿できます。
           </p>
           <Link
             href="#register"
