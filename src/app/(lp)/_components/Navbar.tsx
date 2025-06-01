@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
-export default function Navbar() {
+interface NavbarProps {
+  onOpenModal: () => void;
+}
+
+export default function Navbar({ onOpenModal }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -40,12 +44,12 @@ export default function Navbar() {
             <Link href="#how-it-works" className="text-gray-700 hover:text-gray-900 font-medium">
               使い方
             </Link>
-            <Link
-              href="#register"
+            <button
+              onClick={onOpenModal}
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-5 py-2 hover:opacity-90 transition-opacity"
             >
               事前登録
-            </Link>
+            </button>
           </nav>
 
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
@@ -72,13 +76,15 @@ export default function Navbar() {
             >
               使い方
             </Link>
-            <Link
-              href="#register"
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onOpenModal();
+              }}
               className="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-5 py-2"
-              onClick={() => setIsOpen(false)}
             >
               事前登録
-            </Link>
+            </button>
           </div>
         </div>
       )}
