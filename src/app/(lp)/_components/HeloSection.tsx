@@ -106,7 +106,11 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
           </h1>
           <div className="text-base md:text-lg text-gray-600">
             <p> 大量に溜まっているストーリーズ画像、</p>
-            <p>自動でランダム投稿 ＋ AIで各SNSに横展してインプを倍増させましょう。</p>
+            <p>
+              自動でランダム投稿 ＋ AIで各SNSに横展して
+              <br className="block md:hidden" />
+              インプを倍増させましょう。
+            </p>
           </div>
           <button
             onClick={onOpenModal}
@@ -178,9 +182,6 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               </div>
               <div className="text-sm">
                 <p>{displayedTextX || ' '}</p>
-                <span
-                  className={`inline-block h-4 w-1 bg-gray-900 ${displayedTextX.length === fullTextX.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
-                ></span>
               </div>
             </div>
 
@@ -197,9 +198,6 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               </div>
               <div className="text-sm">
                 <p>{displayedTextThreads || ' '}</p>
-                <span
-                  className={`inline-block h-4 w-1 bg-gray-900 ${displayedTextThreads.length === fullTextThreads.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
-                ></span>
               </div>
             </div>
           </div>

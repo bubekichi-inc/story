@@ -9,8 +9,6 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onOpenModal }: NavbarProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <header className="bg-white/60 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,57 +21,16 @@ export default function Navbar({ onOpenModal }: NavbarProps) {
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="#features" className="text-gray-700 hover:text-gray-900 font-medium">
-              機能紹介
-            </Link>
-            <Link href="#how-it-works" className="text-gray-700 hover:text-gray-900 font-medium">
-              使い方
-            </Link>
+          {/* <nav className="flex items-center space-x-8">
             <button
               onClick={onOpenModal}
               className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-5 py-2 hover:opacity-90 transition-opacity"
             >
               事前登録
             </button>
-          </nav>
-
-          <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          </nav> */}
         </div>
       </div>
-
-      {/* モバイルメニュー */}
-      {isOpen && (
-        <div className="md:hidden bg-white">
-          <div className="px-4 py-5 space-y-4">
-            <Link
-              href="#features"
-              className="block text-gray-700 hover:text-gray-900 font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              機能紹介
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="block text-gray-700 hover:text-gray-900 font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              使い方
-            </Link>
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                onOpenModal();
-              }}
-              className="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-5 py-2"
-            >
-              事前登録
-            </button>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
