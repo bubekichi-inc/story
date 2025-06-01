@@ -69,13 +69,13 @@ export default function HeroSection() {
     <section className="pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6">
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text">
               ストーリーズ芸人に朗報
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-8">
-            大量に溜まっているストーリーズ画像、ランダムで再投稿＋AIで文字起こししてThreadsやXに同時投稿できます。
+          <p className="text-base md:text-lg text-gray-600 mb-8">
+            大量に溜まっているストーリーズ画像、自動でランダム投稿＋AI文字起こしでThreadsやXに同時投稿してインプを倍増させましょう。
           </p>
           <Link
             href="#register"
