@@ -107,7 +107,7 @@ export default function RegistrationForm({
                 ? 'text-red-500'
                 : 'text-red-200'
               : isModal
-                ? 'text-green-600'
+                ? 'text-white'
                 : 'text-white'
           }`}
         >

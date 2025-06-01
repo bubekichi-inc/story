@@ -8,32 +8,19 @@ export default function FeaturesSection() {
       icon: <Upload className="w-8 h-8 text-purple-600" />,
       title: '一括アップロード',
       description:
-        '複数のインスタストーリーを一度にアップロード。手作業による時間のロスを解消します。',
-    },
-    {
-      icon: <Calendar className="w-8 h-8 text-purple-600" />,
-      title: '柔軟な投稿スケジュール',
-      description: 'カスタム投稿スケジュールを作成し、時間帯や間隔を自由に設定できます。',
-    },
-    {
-      icon: <RefreshCw className="w-8 h-8 text-purple-600" />,
-      title: 'クロスプラットフォーム投稿',
-      description: '1回のアップロードで、Instagram、X、Threadsに同時投稿が可能です。',
+        '複数のストーリーズ画像を一度にアップロード。定期的に再投稿したい画像を一元管理できます。',
     },
     {
       icon: <BrainCircuit className="w-8 h-8 text-purple-600" />,
-      title: 'AIキャプション生成',
-      description: 'AIが画像を分析し、魅力的で関連性の高いキャプションを自動生成します。',
+      title: 'AIテキスト生成',
+      description:
+        'ストーリーズ画像から自動でThreads, X投稿テキストを生成します。もちろん手修正も可能です。',
     },
     {
-      icon: <Share2 className="w-8 h-8 text-purple-600" />,
-      title: 'マルチアカウント対応',
-      description: '複数のSNSアカウントを接続し、1つのダッシュボードで一元管理できます。',
-    },
-    {
-      icon: <Clock className="w-8 h-8 text-purple-600" />,
-      title: '時間節約の自動化',
-      description: 'コンテンツの再利用と投稿スケジューリングを自動化し、毎週何時間も節約できます。',
+      icon: <RefreshCw className="w-8 h-8 text-purple-600" />,
+      title: 'クロスプラットフォーム自動投稿',
+      description:
+        '柔軟なスケジュール設定をした上で、ThreadsやXにも同時投稿できます。ランダム投稿にも対応。',
     },
   ];
 
@@ -42,9 +29,9 @@ export default function FeaturesSection() {
       <section id="features" className="py-16 md:py-24 bg-[#f5f8fa]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">主な機能</h2>
-            <p className="text-xl text-gray-600">
-              ストーリーズをテキスト投稿に変換するために必要な全ての機能を提供します
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">できること</h2>
+            <p className="text-lg text-gray-600">
+              ストーリーズ運用を効率化するあらゆる機能を提供します
             </p>
           </div>
 

@@ -92,9 +92,9 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
             </span>
           </h1>
           <div className="text-base md:text-lg text-gray-600">
-            <p> 大量に溜まっているストーリーズ画像、</p>
+            <p> 大量に溜まっているポエムを書いたストーリーズ画像、</p>
             <p>
-              自動でランダム投稿 ＋ AIで各SNSに横展して
+              ランダム投稿 ＋ AIで各SNSに横展して
               <br className="block md:hidden" />
               インプを倍増できます。
             </p>

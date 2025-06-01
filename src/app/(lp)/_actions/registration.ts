@@ -83,7 +83,7 @@ export async function registerEmail(email: string): Promise<RegistrationResult> 
 
     return {
       success: true,
-      message: 'ご登録ありがとうございます！アーリーアクセスの準備が整いましたらご連絡いたします。',
+      message: 'ご登録ありがとうございます！準備が整いましたらご連絡いたします。',
     };
   } catch (error) {
     console.error('Registration error:', error);
