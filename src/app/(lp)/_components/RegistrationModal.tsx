@@ -41,7 +41,7 @@ export default function RegistrationModal({ isOpen, onClose }: RegistrationModal
     <Modal
       isOpen={isOpen}
       onRequestClose={handleClose}
-      className={`relative max-w-lg mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-3xl shadow-2xl p-8 mt-20 transform transition-all duration-500 ease-out ${
+      className={`relative max-w-lg w-full mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-3xl shadow-2xl p-4 md:p-8 mt-20 transform transition-all duration-500 ease-out ${
         isModalContentVisible
           ? 'scale-100 rotate-0 opacity-100 translate-y-0'
           : 'scale-75 rotate-6 opacity-0 translate-y-8'
@@ -79,7 +79,9 @@ export default function RegistrationModal({ isOpen, onClose }: RegistrationModal
             isModalContentVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
           }`}
         >
-          <p className="text-3xl md:text-4xl font-bold text-white mb-6">事前登録</p>
+          <p className="text-2xl md:text-4xl font-bold text-white mb-6 whitespace-nowrap">
+            事前登録
+          </p>
         </div>
 
         <div
@@ -88,7 +90,7 @@ export default function RegistrationModal({ isOpen, onClose }: RegistrationModal
           }`}
           style={{ transitionDelay: '200ms' }}
         >
-          <p className="text-xl text-white/90 mb-8 md:mb-10">
+          <p className="text-sm md:text-xl text-white/90 mb-8 md:mb-10">
             リリース時、メールでお知らせいたします。
           </p>
         </div>

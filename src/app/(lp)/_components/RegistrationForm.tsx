@@ -59,7 +59,7 @@ export default function RegistrationForm({
         <button
           type="submit"
           disabled={status === 'submitting' || status === 'success'}
-          className="absolute font-bold right-1 top-1 bottom-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full px-6 py-3 hover:opacity-90 transition-opacity disabled:opacity-70 flex items-center justify-center"
+          className="absolute font-bold right-1 top-1 bottom-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full px-4 md:px-6 py-2 md:py-3 hover:opacity-90 transition-opacity disabled:opacity-70 flex items-center justify-center text-sm md:text-base"
         >
           {status === 'submitting' ? (
             <svg
