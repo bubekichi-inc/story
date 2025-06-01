@@ -11,6 +11,7 @@ export default function HeroSection() {
   const [displayedTextThreads, setDisplayedTextThreads] = useState('');
   const [displayedTitle, setDisplayedTitle] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalContentVisible, setIsModalContentVisible] = useState(false);
   const fullTextX =
     '新しく見つけたスムージーボウルのお店が最高でした！アサイーの甘さが絶妙で、トッピングも新鮮。この界隈にお住まいの方は絶対チェックすべき！#グルメ #ヘルシー';
   const fullTextThreads =
@@ -22,10 +23,18 @@ export default function HeroSection() {
   // モーダル関連の関数
   const openModal = () => {
     setIsModalOpen(true);
+    // モーダルが開いた後にコンテンツアニメーションを開始
+    setTimeout(() => {
+      setIsModalContentVisible(true);
+    }, 100);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
+    setIsModalContentVisible(false);
+    // アニメーション完了後にモーダルを閉じる
+    setTimeout(() => {
+      setIsModalOpen(false);
+    }, 300);
   };
 
   useEffect(() => {
@@ -117,9 +126,11 @@ export default function HeroSection() {
           </p>
           <button
             onClick={openModal}
-            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition duration-300"
+            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95 relative overflow-hidden group"
           >
-            事前登録する
+            <span className="relative z-10">事前登録する</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 animate-pulse"></div>
           </button>
         </div>
 
@@ -216,23 +227,108 @@ export default function HeroSection() {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
-        className="relative max-w-lg mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-3xl shadow-2xl p-8 mt-20"
-        overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center px-4 z-50"
+        className={`relative max-w-lg mx-auto bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-3xl shadow-2xl p-8 mt-20 transform transition-all duration-500 ease-out ${
+          isModalContentVisible
+            ? 'scale-100 rotate-0 opacity-100 translate-y-0'
+            : 'scale-75 rotate-6 opacity-0 translate-y-8'
+        }`}
+        overlayClassName={`fixed inset-0 backdrop-blur-sm flex items-center justify-center px-4 z-50 transition-all duration-300 ${
+          isModalContentVisible ? 'bg-black/60' : 'bg-black/0'
+        }`}
         shouldCloseOnOverlayClick={true}
         shouldCloseOnEsc={true}
         ariaHideApp={false}
       >
-        <div className="text-center">
-          <p className="text-3xl md:text-4xl font-bold text-white mb-6">事前登録</p>
-          <p className="text-xl text-white/90 mb-8 md:mb-10">
-            リリース時、メールでお知らせいたします。
-          </p>
+        {/* モーダル内のキラキラエフェクト */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">
+          <div
+            className={`absolute top-4 left-4 w-2 h-2 bg-white/30 rounded-full transform transition-all duration-1000 ${
+              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            }`}
+            style={{ animationDelay: '200ms' }}
+          ></div>
+          <div
+            className={`absolute top-8 right-8 w-1 h-1 bg-white/40 rounded-full transform transition-all duration-1000 ${
+              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            }`}
+            style={{ animationDelay: '400ms' }}
+          ></div>
+          <div
+            className={`absolute bottom-8 left-8 w-1.5 h-1.5 bg-white/20 rounded-full transform transition-all duration-1000 ${
+              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            }`}
+            style={{ animationDelay: '600ms' }}
+          ></div>
+          <div
+            className={`absolute bottom-4 right-12 w-1 h-1 bg-white/50 rounded-full transform transition-all duration-1000 ${
+              isModalContentVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            }`}
+            style={{ animationDelay: '800ms' }}
+          ></div>
+        </div>
 
-          <RegistrationForm variant="modal" onSuccess={closeModal} />
+        <div className="text-center relative z-10">
+          {/* 閉じるボタン */}
+          <button
+            onClick={closeModal}
+            className={`absolute -top-2 -right-2 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-300 transform ${
+              isModalContentVisible
+                ? 'scale-100 opacity-100 rotate-0'
+                : 'scale-0 opacity-0 rotate-180'
+            }`}
+            style={{ transitionDelay: '600ms' }}
+          >
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
 
-          <p className="mt-6 text-sm text-white/80">
-            登録は無料です。製品アップデートについてのみご連絡いたします。
-          </p>
+          <div
+            className={`transform transition-all duration-700 ease-out ${
+              isModalContentVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+            }`}
+          >
+            <p className="text-3xl md:text-4xl font-bold text-white mb-6 animate-pulse">事前登録</p>
+          </div>
+
+          <div
+            className={`transform transition-all duration-700 ease-out ${
+              isModalContentVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+            }`}
+            style={{ transitionDelay: '200ms' }}
+          >
+            <p className="text-xl text-white/90 mb-8 md:mb-10">
+              リリース時、メールでお知らせいたします。
+            </p>
+          </div>
+
+          <div
+            className={`transform transition-all duration-700 ease-out ${
+              isModalContentVisible
+                ? 'translate-y-0 opacity-100 scale-100'
+                : 'translate-y-8 opacity-0 scale-95'
+            }`}
+            style={{ transitionDelay: '400ms' }}
+          >
+            <RegistrationForm variant="modal" onSuccess={closeModal} />
+          </div>
+
+          <div
+            className={`transform transition-all duration-700 ease-out ${
+              isModalContentVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+            }`}
+            style={{ transitionDelay: '600ms' }}
+          ></div>
         </div>
       </Modal>
     </section>
