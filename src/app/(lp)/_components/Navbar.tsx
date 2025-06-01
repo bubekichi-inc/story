@@ -4,11 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
-interface NavbarProps {
-  onOpenModal: () => void;
-}
-
-export default function Navbar({ onOpenModal }: NavbarProps) {
+export default function Navbar() {
   return (
     <header className="bg-white/60 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
