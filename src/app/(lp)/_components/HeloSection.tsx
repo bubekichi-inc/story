@@ -156,7 +156,6 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
                 </div>
               </div>
 
-              {/* Threads Post */}
               <div
                 className={`w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
               >
