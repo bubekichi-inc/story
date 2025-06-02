@@ -157,8 +157,29 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               </div>
 
               <div
-                className={`w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
+                className={`w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 relative ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
               >
+                {/* SNSアイコン */}
+                <div className="absolute top-3 right-3 flex gap-2">
+                  {/* Threadsアイコン */}
+                  <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                    <Image
+                      src="/images/threads.svg"
+                      alt="Threads Icon"
+                      width={24}
+                      height={24}
+                      className="w-4 h-4"
+                      priority
+                    />
+                  </div>
+                  {/* Xアイコン */}
+                  <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </div>
+                </div>
+
                 <div className="flex items-center mb-3">
                   <div className="h-10 w-10 rounded-full bg-gray-200"></div>
                   <div className="ml-3">
