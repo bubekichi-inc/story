@@ -109,11 +109,11 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         </div>
 
         <FadeAnimation>
-          <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16">
+          <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16 flex justify-center">
             {/* アニメーションコンテナ */}
-            <div className="relative h-[800px] md:h-[600px] bg-[#f5f8fa] rounded-2xl shadow-card overflow-hidden">
+            <div className="flex items-center gap-10">
               {/* Instagram Story */}
-              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 md:top-1/2 md:-translate-y-1/2 w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
+              <div className="w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
                 <Image
                   src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg"
                   alt="Instagram Story - スムージーボウル"
@@ -126,9 +126,10 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
 
               {/* アニメーション矢印 */}
               <div
-                className={`absolute top-[550px] md:bottom-1/3 right-4 md:-right-4 transform md:translate-x-12 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}
+                className={`${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}
               >
                 <div className="h-12 w-32 md:w-40 bg-gradient-to-r from-pink-500 to-transparent rounded-full flex items-center justify-center">
+                  <div className="text-white font-bold">AI</div>
                   <svg className="w-24 h-8 text-white" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M5 12H19M19 12L13 6M19 12L13 18"
@@ -143,7 +144,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
 
               {/* Threads Post */}
               <div
-                className={`absolute top-[650px] md:bottom-12 right-8 md:right-12 w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
+                className={`w-72 md:w-80 bg-white rounded-xl shadow-lg border border-gray-200 p-4 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-1500`}
               >
                 <div className="flex items-center mb-3">
                   <div className="h-10 w-10 rounded-full bg-gray-200"></div>
