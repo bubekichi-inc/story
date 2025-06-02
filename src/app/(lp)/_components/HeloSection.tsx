@@ -15,6 +15,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
   const fullTextThreads =
     '朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り';
   const fullTitle = 'ストーリーズ芸人に朗報';
+  const titleChars = [...fullTitle]; // 文字を配列に変換
 
   const animationRef = useRef<HTMLDivElement>(null);
 
@@ -43,8 +44,9 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
     // タイトルのタイピングアニメーション - 即座に開始
     let titleIndex = 0;
     const titleInterval = setInterval(() => {
-      if (titleIndex < fullTitle.length) {
-        setDisplayedTitle((prev) => prev + fullTitle.charAt(titleIndex));
+      if (titleIndex < titleChars.length) {
+        const nextChar = titleChars[titleIndex];
+        setDisplayedTitle((prev) => prev + nextChar);
         titleIndex++;
       } else {
         clearInterval(titleInterval);
@@ -87,7 +89,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-transparent bg-clip-text relative z-10 flex items-center">
               {displayedTitle}
               <span
-                className={`inline-block h-10 md:h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-2 ${displayedTitle.length === fullTitle.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
+                className={`inline-block h-10 md:h-16 w-1 bg-gradient-to-b from-purple-600 to-pink-500 ml-2 ${displayedTitle.length === titleChars.length ? 'opacity-0' : 'opacity-100'} animate-pulse`}
               ></span>
             </span>
           </h1>
