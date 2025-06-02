@@ -13,7 +13,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
   const [displayedTextThreads, setDisplayedTextThreads] = useState('');
   const [displayedTitle, setDisplayedTitle] = useState('');
   const fullTextThreads =
-    '朝食にぴったりの絶景スポットを発見 😍 スムージーボウルが信じられないほど美味しい - 新鮮な食材と完璧なバランスの味。朝一番で訪れる価値アリ！#朝活 #カフェ巡り';
+    '「個人開発」の魅力\n\n1．労働集約でない収入源になる\n開発期間は無収入ですが、サービスが広まり始めれば、ほぼ全自動の収入源になります。僕のプロダクトも、月に30分ほどしか稼働せず、毎月15万円売上を立ててくれています。ハードルは高いですが、既にある程度稼げていて労働集約に疲れた人にはおすすめ。\n\n2．固定費・在庫のリスクがない\n人件費や家賃など大きい固定費はかからないし在庫を抱えたりもありません。作ったプログラムコードをインターネット上で提供できれば成り立つので失敗しても損失は小さく済みます。\n\n3．本業に活かせる\n技術面・マーケティング面・カスタマーサポート面で個人開発で得た経験や知識が本業に活かせる場面がとても多いです。そのつもりはなくとも、「気づいたら本業への自己投資になっていた」がよくあります。';
   const fullTitle = 'ストーリーズ芸人に朗報';
   const titleChars = [...fullTitle]; // 文字を配列に変換
 
@@ -204,7 +204,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
                   </div>
                 </div>
                 <div className="text-sm">
-                  <p>{displayedTextThreads || ' '}</p>
+                  <p className="whitespace-pre-line">{displayedTextThreads || ' '}</p>
                 </div>
               </div>
 
