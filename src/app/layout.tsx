@@ -9,8 +9,9 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: 'StoryCastAI - ストーリーズをテキスト投稿に変換',
-  description: 'インスタグラムストーリーをX（旧Twitter）やThreads用のテキスト投稿に変換します。',
+  title: 'StoryCastAI',
+  description:
+    'インスタグラムストーリーをXやThreads用のテキスト投稿に変換して、一括スケジュール投稿します。',
 };
 
 export default function RootLayout({
