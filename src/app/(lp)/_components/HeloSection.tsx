@@ -111,7 +111,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         <FadeAnimation>
           <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16">
             {/* アニメーションコンテナ */}
-            <div className="relative h-[800px] md:h-[600px] bg-[#f5f8fa] rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative h-[800px] md:h-[600px] bg-[#f5f8fa] rounded-2xl shadow-card overflow-hidden">
               {/* Instagram Story */}
               <div className="absolute top-8 left-1/2 transform -translate-x-1/2 md:top-1/2 md:-translate-y-1/2 w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
                 <Image
