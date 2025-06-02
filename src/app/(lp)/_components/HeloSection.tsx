@@ -122,7 +122,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               {/* Instagram Story */}
               <div className="w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
                 <Image
-                  src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg"
+                  src="/images/story.png"
                   alt="Instagram Story - スムージーボウル"
                   className="w-full h-full object-cover"
                   width={300}
@@ -188,10 +188,19 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
                 </div>
 
                 <div className="flex items-center mb-3">
-                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                  <div className="h-10 w-10">
+                    <Image
+                      src="/images/bube.png"
+                      alt="Avatar"
+                      width={40}
+                      height={40}
+                      className="w-full h-full rounded-full object-cover"
+                      priority
+                    />
+                  </div>
                   <div className="ml-3">
-                    <p className="font-semibold text-sm">ユーザー名</p>
-                    <p className="text-gray-500 text-xs">@username</p>
+                    <p className="font-semibold text-sm">ぶべ</p>
+                    <p className="text-gray-500 text-xs">@bube.code</p>
                   </div>
                 </div>
                 <div className="text-sm">
