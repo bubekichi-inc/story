@@ -232,7 +232,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
 
               {/* 3つのSNS投稿アニメーション */}
               <div
-                className={`flex flex-col gap-6 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-2500`}
+                className={`flex md:flex-col gap-6 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-2500`}
               >
                 {/* Instagram投稿アニメーション */}
                 <div
