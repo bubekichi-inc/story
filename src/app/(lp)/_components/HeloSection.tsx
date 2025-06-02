@@ -132,17 +132,17 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               >
                 <div className="relative flex items-center justify-center">
                   {/* AI変換アニメーション */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex md:flex-row flex-col md:items-center items-center gap-2">
                     <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                       AI
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex md:flex-row flex-col items-center gap-2">
                       <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
                     </div>
                     <svg
-                      className="w-8 h-8 text-purple-600 animate-pulse"
+                      className="w-8 h-8 text-purple-600 animate-pulse md:rotate-0 rotate-90"
                       viewBox="0 0 24 24"
                       fill="none"
                     >
