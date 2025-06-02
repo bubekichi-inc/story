@@ -71,7 +71,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         } else {
           clearInterval(intervalThreads);
         }
-      }, 50);
+      }, 10);
 
       return () => clearInterval(intervalThreads);
     }, 1000);
