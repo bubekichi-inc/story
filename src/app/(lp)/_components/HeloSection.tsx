@@ -94,7 +94,11 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
             </span>
           </h1>
           <div className="text-base md:text-lg text-gray-600">
-            <p> 大量に溜まっているポエムを書いたストーリーズ画像、</p>
+            <p>
+              {' '}
+              大量に溜まっている <br className="block md:hidden" />
+              ポエムを書いたストーリーズ画像、
+            </p>
             <p>
               ランダム投稿 ＋ AIで各SNSに横展して
               <br className="block md:hidden" />
@@ -113,7 +117,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         <FadeAnimation>
           <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16 flex justify-center">
             {/* アニメーションコンテナ */}
-            <div className="flex flex-col md:flex-row items-center gap-10">
+            <div className="flex flex-col md:flex-row items-center gap-8">
               {/* Instagram Story */}
               <div className="w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
                 <Image
@@ -191,6 +195,111 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
                 </div>
                 <div className="text-sm">
                   <p>{displayedTextThreads || ' '}</p>
+                </div>
+              </div>
+
+              {/* 第2の矢印アニメーション */}
+              <div
+                className={`${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-2000`}
+              >
+                <div className="relative flex items-center justify-center">
+                  {/* 同時投稿アニメーション */}
+                  <div className="flex md:flex-row flex-col md:items-center items-center gap-2">
+                    <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse whitespace-nowrap">
+                      投稿
+                    </div>
+                    <div className="flex md:flex-row flex-col items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+                    </div>
+                    <svg
+                      className="w-8 h-8 text-green-600 animate-pulse md:rotate-0 rotate-90"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M5 12H19M19 12L13 6M19 12L13 18"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3つのSNS投稿アニメーション */}
+              <div
+                className={`flex flex-col gap-6 ${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-2500`}
+              >
+                {/* Instagram投稿アニメーション */}
+                <div
+                  className={`transform transition-all duration-500 delay-2700 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                >
+                  <div className="w-16 h-16 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
+                    <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                    </svg>
+                    {/* 投稿成功インジケーター */}
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                      <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Threads投稿アニメーション */}
+                <div
+                  className={`transform transition-all duration-500 delay-2900 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                >
+                  <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center shadow-lg animate-pulse">
+                    <Image
+                      src="/images/threads.svg"
+                      alt="Threads Icon"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8"
+                      priority
+                    />
+                    {/* 投稿成功インジケーター */}
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                      <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* X投稿アニメーション */}
+                <div
+                  className={`transform transition-all duration-500 delay-3100 ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                >
+                  <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center shadow-lg animate-pulse relative">
+                    <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                    {/* 投稿成功インジケーター */}
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                      <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, Calendar, RefreshCw, Share2, Clock, BrainCircuit } from 'lucide-react';
+import { Upload, RefreshCw, BrainCircuit } from 'lucide-react';
 import { FadeAnimation } from './FadeAnimation';
 
 export default function FeaturesSection() {
