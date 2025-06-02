@@ -128,17 +128,31 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               <div
                 className={`${isVisible ? 'opacity-100' : 'opacity-0'} transition-all duration-1000 delay-700`}
               >
-                <div className="h-12 w-32 md:w-40 bg-gradient-to-r from-pink-500 to-transparent rounded-full flex items-center justify-center">
-                  <div className="text-white font-bold">AI</div>
-                  <svg className="w-24 h-8 text-white" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 12H19M19 12L13 6M19 12L13 18"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                <div className="relative flex items-center justify-center">
+                  {/* AI変換アニメーション */}
+                  <div className="flex items-center gap-2">
+                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                      AI
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+                    </div>
+                    <svg
+                      className="w-8 h-8 text-purple-600 animate-pulse"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M5 12H19M19 12L13 6M19 12L13 18"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
 
