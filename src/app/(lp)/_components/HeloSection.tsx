@@ -102,7 +102,8 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
             <p>
               ランダム投稿 ＋ AIで各SNSに横展して
               <br className="block md:hidden" />
-              インプを倍増できます。
+              <span className="font-bold mx-0.5">インプを倍増</span>
+              できます。
             </p>
           </div>
           <button
