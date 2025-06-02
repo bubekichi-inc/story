@@ -113,7 +113,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
         <FadeAnimation>
           <div ref={animationRef} className="relative max-w-5xl mx-auto mt-16 flex justify-center">
             {/* アニメーションコンテナ */}
-            <div className="flex items-center gap-10">
+            <div className="flex flex-col md:flex-row items-center gap-10">
               {/* Instagram Story */}
               <div className="w-64 h-96 md:w-72 md:h-[30rem] bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 z-10">
                 <Image
