@@ -1,7 +1,7 @@
 import { createClient } from '@/app/_lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/app/_lib/prisma';
-import DashboardContent from './_components/DashboardContent';
+import PostsContent from './_components/PostsContent';
 
 export default async function Posts() {
   const supabase = await createClient();
@@ -25,5 +25,5 @@ export default async function Posts() {
     orderBy: { createdAt: 'desc' },
   });
 
-  return <DashboardContent posts={posts} />;
+  return <PostsContent posts={posts} />;
 }

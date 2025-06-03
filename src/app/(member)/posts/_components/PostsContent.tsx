@@ -23,11 +23,11 @@ interface Post {
   images: PostImage[];
 }
 
-interface DashboardContentProps {
+interface PostsContentProps {
   posts: Post[];
 }
 
-export default function DashboardContent({ posts }: DashboardContentProps) {
+export default function PostsContent({ posts }: PostsContentProps) {
   // 統計データを計算
   const totalImages = posts.reduce((total, post) => total + post.images.length, 0);
 
