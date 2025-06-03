@@ -98,6 +98,8 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
       }
     }
 
+    console.log(user)
+
     // まず投稿を作成
     const post = await prisma.post.create({
       data: {

@@ -14,6 +14,7 @@ import { Input } from '@/app/_components/ui/input';
 import { Label } from '@/app/_components/ui/label';
 import { createPost } from '@/app/(member)/posts/_actions/posts';
 import { Plus, Upload, X } from 'lucide-react';
+import Image from 'next/image';
 
 export default function UploadDialog() {
   const [open, setOpen] = useState(false);
@@ -158,11 +159,15 @@ export default function UploadDialog() {
               <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
                 {selectedFiles.map((file, index) => (
                   <div key={index} className="relative">
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-20 object-cover rounded border"
-                    />
+                    <div className="w-full h-20 relative rounded border overflow-hidden">
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeFile(index)}

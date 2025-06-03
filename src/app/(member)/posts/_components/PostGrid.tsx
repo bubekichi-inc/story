@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/app/_components/ui/card';
 import { Button } from '@/app/_components/ui/button';
 import { deletePost } from '@/app/(member)/posts/_actions/posts';
 import { Calendar, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 
 interface PostImage {
   id: string;
@@ -57,25 +58,18 @@ function PostImageCard({
   image,
   post,
   onDeletePost,
+  isDeleting,
 }: {
   image: PostImage;
   post: Post;
   onDeletePost: (postId: string) => void;
+  isDeleting: boolean;
 }) {
-  const [loading, setLoading] = useState(false);
   const postColor = getPostColor(post.id);
 
   const handleDelete = async () => {
     if (!confirm(`この投稿（${post.images.length}枚）を削除しますか？`)) return;
-
-    setLoading(true);
-    try {
-      await onDeletePost(post.id);
-    } catch (error) {
-      console.error('Failed to delete post:', error);
-    } finally {
-      setLoading(false);
-    }
+    await onDeletePost(post.id);
   };
 
   return (
@@ -83,7 +77,7 @@ function PostImageCard({
       className={`group relative cursor-pointer transition-all duration-200 hover:shadow-lg border-2 ${postColor}`}
     >
       <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button size="sm" variant="destructive" onClick={handleDelete} disabled={loading}>
+        <Button size="sm" variant="destructive" onClick={handleDelete} disabled={isDeleting}>
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
@@ -91,7 +85,13 @@ function PostImageCard({
       <CardContent className="p-0">
         {/* 画像プレビュー */}
         <div className="aspect-square relative overflow-hidden rounded-t-lg">
-          <img src={image.imageUrl} alt={image.fileName} className="w-full h-full object-cover" />
+          <Image
+            src={image.imageUrl}
+            alt={image.fileName}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+          />
 
           {/* PostID表示（同じPostの識別用） */}
           <div className="absolute bottom-2 left-2">
@@ -194,6 +194,7 @@ export default function PostGrid({ posts }: PostGridProps) {
               image={image}
               post={post}
               onDeletePost={handleDeletePost}
+              isDeleting={loading === post.id}
             />
           ))}
       </div>
