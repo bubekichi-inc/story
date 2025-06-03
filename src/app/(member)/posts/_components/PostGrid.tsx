@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar } from 'lucide-react';
+import { Calendar, Copy } from 'lucide-react';
 import Image from 'next/image';
 
 interface PostImage {
@@ -28,48 +28,26 @@ interface PostGridProps {
 
 function PostCard({ post }: { post: Post }) {
   const images = post.images.sort((a, b) => a.order - b.order);
-
   return (
     <div className="relative group cursor-pointer">
-      {/* メイン画像（一番手前） */}
-      <div className="aspect-[9/16] relative overflow-hidden">
+      {/* メイン画像 */}
+      <div className="aspect-[9/16] relative overflow-hidden shadow-card">
         <Image
           src={images[0].imageUrl}
           alt={images[0].fileName}
-          fill
+          height={800}
+          width={450}
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 20vw, 20vw"
         />
-      </div>
 
-      {/* 複数画像がある場合の重なり効果 */}
-      {images.length > 1 && (
-        <>
-          {/* 2枚目 */}
-          <div className="absolute top-1 right-1 aspect-[9/16] w-[95%] overflow-hidden rounded-lg -z-10">
-            <Image
-              src={images[1].imageUrl}
-              alt={images[1].fileName}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 20vw, 20vw"
-            />
+        {/* 複数枚アイコン */}
+        {images.length > 1 && (
+          <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5">
+            <Copy className="w-4 h-4 text-white" />
           </div>
-
-          {/* 3枚目以降がある場合 */}
-          {images.length > 2 && (
-            <div className="absolute top-2 right-2 aspect-[9/16] w-[90%] overflow-hidden rounded-lg -z-20">
-              <Image
-                src={images[2].imageUrl}
-                alt={images[2].fileName}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 20vw, 20vw"
-              />
-            </div>
-          )}
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
