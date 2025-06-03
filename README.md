@@ -1,23 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StoryCast AI - Instagramストーリーズ自動投稿アプリ
+
+Instagram のストーリーズを自動でランダム投稿できる Web アプリケーションです。
+
+## 主な機能
+
+### 🔐 認証機能
+
+- Supabase を使用したサーバーサイド認証
+- メールアドレス + パスワード方式
+- トップページからダイアログでログイン/新規登録
+
+### 📸 画像管理機能
+
+- ストーリーズ画像の一覧表示
+- 複数枚同時アップロード対応
+- 画像のプレビュー機能
+
+### 🔄 投稿統合機能
+
+- 複数の投稿を1つにまとめる機能
+- ドラッグ&ドロップでの投稿統合
+- 選択モードでの一括操作
+
+## 技術スタック
+
+- **フレームワーク**: Next.js 15 (App Router)
+- **認証**: Supabase Auth
+- **データベース**: PostgreSQL (Prisma ORM)
+- **UI**: shadcn/ui + Tailwind CSS
+- **ファイルストレージ**: Supabase Storage
+- **ドラッグ&ドロップ**: @dnd-kit
 
 ## Environment Setup
 
 1. Copy the environment variables file:
+
 ```bash
 cp .env.example .env
 ```
 
 2. Update the `.env` file with your actual values:
+
    - `DATABASE_URL`: Your Supabase PostgreSQL connection string
    - `SENDGRID_API_KEY`: Your SendGrid API key
    - `ADMIN_EMAIL`: Email address for admin notifications
 
 3. Generate the Prisma client:
+
 ```bash
 npm run db:generate
 ```
 
 4. Push the database schema (for development):
+
 ```bash
 npm run db:push
 ```

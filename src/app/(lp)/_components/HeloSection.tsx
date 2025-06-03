@@ -3,12 +3,10 @@
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { FadeAnimation } from './FadeAnimation';
+import { AuthDialog } from '@/app/_components/AuthDialog';
+import { Button } from '@/app/_components/ui/button';
 
-interface HeroSectionProps {
-  onOpenModal: () => void;
-}
-
-export default function HeroSection({ onOpenModal }: HeroSectionProps) {
+export default function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [displayedTextThreads, setDisplayedTextThreads] = useState('');
   const [displayedTitle, setDisplayedTitle] = useState('');
@@ -106,13 +104,15 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
               できます。
             </p>
           </div>
-          <button
-            onClick={onOpenModal}
-            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95 relative overflow-hidden group"
-          >
-            <span className="relative z-10 font-bold">事前登録する</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </button>
+          <AuthDialog>
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 active:scale-95 relative overflow-hidden group"
+            >
+              <span className="relative z-10">今すぐ始める</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </Button>
+          </AuthDialog>
         </div>
 
         <FadeAnimation>

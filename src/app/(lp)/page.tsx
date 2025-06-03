@@ -1,27 +1,27 @@
-'use client';
-
-import { useState } from 'react';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import FeaturesSection from './_components/FeatureSection';
 import Footer from './_components/Footer';
 import HeroSection from './_components/HeloSection';
 import Navbar from './_components/Navbar';
-import RegistrationSection from './_components/RegistrationSection';
-import RegistrationModal from './_components/RegistrationModal';
 
-export default function Home() {
-  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+export default async function Home() {
+  // すでにログインしている場合はダッシュボードにリダイレクト
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const openRegistrationModal = () => setIsRegistrationModalOpen(true);
-  const closeRegistrationModal = () => setIsRegistrationModalOpen(false);
+  if (user) {
+    redirect('/posts');
+  }
 
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
-      <HeroSection onOpenModal={openRegistrationModal} />
+      <HeroSection />
       <FeaturesSection />
-      <RegistrationSection />
       <Footer />
-      <RegistrationModal isOpen={isRegistrationModalOpen} onClose={closeRegistrationModal} />
     </main>
   );
 }

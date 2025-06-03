@@ -1,5 +1,7 @@
-import { ReactNode } from "react";
-import { useInView } from "react-intersection-observer";
+'use client';
+
+import { ReactNode } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 type Props = {
   children: ReactNode;
@@ -16,14 +18,14 @@ export const FadeAnimation: React.FC<Props> = (props) => {
    * 「triggerOnce」検知を一度だけ行うかどうか
    */
   const { ref, inView } = useInView({
-    rootMargin: "-100px",
+    rootMargin: '-100px',
     triggerOnce: true,
   });
 
   return (
     <div
       ref={ref}
-      className={`${inView ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"} transition-all duration-500 ease-in-out`}
+      className={`${inView ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'} transition-all duration-500 ease-in-out`}
     >
       {children}
     </div>
