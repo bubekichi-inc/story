@@ -55,7 +55,7 @@ export default function UploadDialog() {
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage(`${selectedFiles.length}件の投稿を作成中...`);
 
     try {
       // 選択したファイルをFormDataに追加
@@ -76,7 +76,7 @@ export default function UploadDialog() {
         setMessage(result.message);
       }
     } catch (error) {
-      setMessage('アップロードに失敗しました');
+      setMessage('投稿の作成に失敗しました');
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ export default function UploadDialog() {
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600 mb-2">
-                画像をドラッグ&ドロップまたはクリックして選択
+                画像をドラッグ&ドロップまたはクリックして選択（各画像は個別の投稿になります）
               </p>
               <Input
                 id="images"
@@ -129,7 +129,9 @@ export default function UploadDialog() {
           {/* 選択されたファイルのプレビュー */}
           {selectedFiles.length > 0 && (
             <div className="space-y-2">
-              <Label>選択された画像 ({selectedFiles.length}枚)</Label>
+              <Label>
+                選択された画像 ({selectedFiles.length}枚 → {selectedFiles.length}件の投稿)
+              </Label>
               <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
                 {selectedFiles.map((file, index) => (
                   <div key={index} className="relative">
@@ -180,7 +182,9 @@ export default function UploadDialog() {
               キャンセル
             </Button>
             <Button type="submit" disabled={loading || selectedFiles.length === 0}>
-              {loading ? 'アップロード中...' : 'アップロード'}
+              {loading
+                ? `${selectedFiles.length}件の投稿を作成中...`
+                : `${selectedFiles.length}件の投稿を作成`}
             </Button>
           </div>
         </form>

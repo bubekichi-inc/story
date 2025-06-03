@@ -7,7 +7,7 @@ import { prisma } from '@/app/_lib/prisma';
 type UploadResult = {
   success: boolean;
   message: string;
-  postId?: string;
+  postIds?: string[];
 };
 
 export async function createPost(formData: FormData): Promise<UploadResult> {
@@ -18,12 +18,6 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
-
-  console.log('Server: Auth check result:', {
-    hasUser: !!user,
-    userId: user?.id,
-    authError: authError?.message,
-  });
 
   if (authError || !user) {
     return {
@@ -97,20 +91,10 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
         console.log('Server: Bucket created successfully:', createBucketData);
       }
     }
-
     console.log(user);
 
-    // まず投稿を作成
-    const post = await prisma.post.create({
-      data: {
-        userId: user.id,
-      },
-    });
-
-    console.log('Server: Post created:', post.id);
-
-    // 各画像をPostImageとして保存
-    const createdImages = [];
+    // 各画像に対して個別のPostを作成
+    const createdPosts = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
@@ -133,6 +117,15 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
         hasArrayBuffer: typeof file.arrayBuffer === 'function',
         hasStream: typeof file.stream === 'function',
       });
+
+      // 各画像に対して新しいPostを作成
+      const post = await prisma.post.create({
+        data: {
+          userId: user.id,
+        },
+      });
+
+      console.log('Server: Post created for image:', post.id);
 
       // ファイル名を安全な形式に変換
       const sanitizedFileName = file.name
@@ -159,6 +152,12 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
           fileSize: file.size,
           fileType: file.type,
         });
+
+        // アップロードに失敗した場合、作成したPostを削除
+        await prisma.post.delete({
+          where: { id: post.id },
+        });
+
         return {
           success: false,
           message: `ストレージアップロードエラー: ${uploadError.message}`,
@@ -166,7 +165,6 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
       }
 
       console.log('Server: Upload success:', uploadData);
-
       console.log('Server: File uploaded successfully');
 
       // 公開URLを取得
@@ -176,7 +174,7 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
 
       console.log('Server: Public URL generated:', publicUrl);
 
-      // PostImageを作成
+      // PostImageを作成（1つのPostに1つの画像）
       const postImage = await prisma.postImage.create({
         data: {
           postId: post.id,
@@ -184,20 +182,20 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
           fileName: file.name,
           fileSize: file.size,
           mimeType: file.type,
-          order: i,
+          order: 0, // 各Postには1つの画像のみなので常に0
         },
       });
 
       console.log('Server: PostImage created:', postImage.id);
-      createdImages.push(postImage);
+      createdPosts.push(post);
     }
 
-    console.log('Server: Total images created:', createdImages.length);
+    console.log('Server: Total posts created:', createdPosts.length);
     revalidatePath('/posts');
     return {
       success: true,
-      message: `${createdImages.length}枚の画像をアップロードしました`,
-      postId: post.id,
+      message: `${createdPosts.length}件の投稿を作成しました`,
+      postIds: createdPosts.map((post) => post.id),
     };
   } catch (error) {
     console.error('Server: Failed to create post:', error);
