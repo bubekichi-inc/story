@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/app/_lib/supabase/server';
 import { redirect } from 'next/navigation';
 import FeaturesSection from './_components/FeatureSection';
 import Footer from './_components/Footer';

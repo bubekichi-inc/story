@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@/app/_lib/supabase/server';
+import { prisma } from '@/app/_lib/prisma';
 
 type AuthResult = {
   success: boolean;

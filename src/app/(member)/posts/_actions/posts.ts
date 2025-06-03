@@ -1,8 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@/app/_lib/supabase/server';
+import { prisma } from '@/app/_lib/prisma';
 
 type UploadResult = {
   success: boolean;
@@ -98,7 +98,7 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
       }
     }
 
-    console.log(user)
+    console.log(user);
 
     // まず投稿を作成
     const post = await prisma.post.create({

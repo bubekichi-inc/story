@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/app/_lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/app/_lib/prisma';
 import DashboardContent from './_components/DashboardContent';
 
 export default async function Posts() {
