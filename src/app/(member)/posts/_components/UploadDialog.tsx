@@ -58,37 +58,12 @@ export default function UploadDialog() {
     setMessage('');
 
     try {
-      // デバッグ情報
-      console.log('Selected files:', selectedFiles.length);
-      console.log(
-        'Files details:',
-        selectedFiles.map((f) => ({ name: f.name, size: f.size, type: f.type }))
-      );
-
       // 選択したファイルをFormDataに追加
-      selectedFiles.forEach((file, index) => {
-        console.log(`Adding file ${index}:`, file.name, file.size, 'bytes');
+      selectedFiles.forEach((file) => {
         formData.append('images', file);
       });
 
-      // FormDataの内容を確認
-      console.log('FormData entries:');
-      for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}:`, {
-            name: value.name,
-            size: value.size,
-            type: value.type,
-            lastModified: value.lastModified,
-            constructor: value.constructor.name,
-          });
-        } else {
-          console.log(`${key}:`, value);
-        }
-      }
-
       const result = await createPost(formData);
-      console.log('Upload result:', result);
 
       if (result.success) {
         setMessage(result.message);
@@ -101,7 +76,6 @@ export default function UploadDialog() {
         setMessage(result.message);
       }
     } catch (error) {
-      console.error('Upload error:', error);
       setMessage('アップロードに失敗しました');
     } finally {
       setLoading(false);
