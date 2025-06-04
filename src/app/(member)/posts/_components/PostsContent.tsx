@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/_components/ui/card';
 import UploadDialog from './UploadDialog';
 import PostGrid from './PostGrid';
 
@@ -29,9 +28,6 @@ interface PostsContentProps {
 }
 
 export default function PostsContent({ posts }: PostsContentProps) {
-  // 統計データを計算
-  const totalImages = posts.reduce((total, post) => total + post.images.length, 0);
-
   return (
     <div className="container mx-auto">
       {/* アクションエリア */}

@@ -8,7 +8,17 @@ import dynamic from 'next/dynamic';
 // ドラッグアンドドロップ機能を持つコンポーネントを動的にインポート
 const DraggablePostGrid = dynamic(() => import('./DraggablePostGrid'), {
   ssr: false,
-  loading: () => <div>読み込み中...</div>,
+  loading: () => (
+    <div className="grid grid-cols-5 gap-4">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div key={i} className="relative group">
+          <div className="aspect-[9/16] relative overflow-hidden shadow-card bg-gray-200 animate-pulse">
+            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
 });
 
 interface PostImage {
