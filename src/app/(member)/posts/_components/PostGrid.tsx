@@ -2,6 +2,14 @@
 
 import { Calendar, Copy } from 'lucide-react';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+// ドラッグアンドドロップ機能を持つコンポーネントを動的にインポート
+const DraggablePostGrid = dynamic(() => import('./DraggablePostGrid'), {
+  ssr: false,
+  loading: () => <div>読み込み中...</div>,
+});
 
 interface PostImage {
   id: string;
@@ -17,6 +25,7 @@ interface PostImage {
 interface Post {
   id: string;
   userId: string;
+  order: number;
   createdAt: Date;
   updatedAt: Date;
   images: PostImage[];
@@ -26,8 +35,10 @@ interface PostGridProps {
   posts: Post[];
 }
 
-function PostCard({ post }: { post: Post }) {
+// SSR用の静的なPostCard（ドラッグ機能なし）
+function StaticPostCard({ post }: { post: Post }) {
   const images = post.images.sort((a, b) => a.order - b.order);
+
   return (
     <div className="relative group cursor-pointer">
       {/* メイン画像 */}
@@ -53,6 +64,13 @@ function PostCard({ post }: { post: Post }) {
 }
 
 export default function PostGrid({ posts }: PostGridProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  // クライアント側でのみマウントされるかどうかを判定
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   if (posts.length === 0) {
     return (
       <div className="text-center py-12">
@@ -65,13 +83,17 @@ export default function PostGrid({ posts }: PostGridProps) {
     );
   }
 
-  return (
-    <div className="grid grid-cols-5 gap-4">
-      {posts
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .map((post) => (
-          <PostCard key={post.id} post={post} />
+  // SSR時とクライアント初期レンダリング時は静的なグリッドを表示
+  if (!isMounted) {
+    return (
+      <div className="grid grid-cols-5 gap-4">
+        {posts.map((post) => (
+          <StaticPostCard key={post.id} post={post} />
         ))}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // クライアント側でマウント後はドラッグアンドドロップ対応のグリッドを表示
+  return <DraggablePostGrid posts={posts} />;
 }

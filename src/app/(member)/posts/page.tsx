@@ -22,7 +22,7 @@ export default async function Posts() {
         orderBy: { order: 'asc' },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { order: 'asc' },
   });
 
   return <PostsContent posts={posts} />;

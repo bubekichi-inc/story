@@ -61,6 +61,14 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
 
     // 各画像に対して個別のPostを作成
     const createdPosts = [];
+
+    // 現在のユーザーの最大orderを取得
+    const maxOrderPost = await prisma.post.findFirst({
+      where: { userId: user.id },
+      orderBy: { order: 'desc' },
+    });
+    const baseOrder = (maxOrderPost?.order ?? -1) + 1;
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
@@ -78,6 +86,7 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
       const post = await prisma.post.create({
         data: {
           userId: user.id,
+          order: baseOrder + i,
         },
       });
 
@@ -147,6 +156,50 @@ export async function mergePostImages(): Promise<UploadResult> {
     success: false,
     message: 'この機能は新しいスキーマ構造では不要です',
   };
+}
+
+export async function updatePostOrder(postIds: string[]): Promise<UploadResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      message: 'ログインが必要です',
+    };
+  }
+
+  try {
+    // 一括更新でorderを設定
+    const updatePromises = postIds.map((postId, index) =>
+      prisma.post.update({
+        where: {
+          id: postId,
+          userId: user.id, // ユーザーの投稿のみ更新可能
+        },
+        data: {
+          order: index,
+        },
+      })
+    );
+
+    await Promise.all(updatePromises);
+
+    revalidatePath('/posts');
+    return {
+      success: true,
+      message: '順番を更新しました',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: '順番の更新に失敗しました',
+    };
+  }
 }
 
 export async function deletePost(postId: string): Promise<UploadResult> {

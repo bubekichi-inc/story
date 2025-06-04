@@ -18,6 +18,7 @@ interface PostImage {
 interface Post {
   id: string;
   userId: string;
+  order: number;
   createdAt: Date;
   updatedAt: Date;
   images: PostImage[];
