@@ -84,7 +84,10 @@ export default function PostsContent({ posts }: PostsContentProps) {
     <div className="container mx-auto">
       {/* アクションエリア */}
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
+          <div className="">
+            <p className="text-sm text-gray-600">全{posts.length} 件</p>
+          </div>
           {posts.length > 0 && (
             <SelectionActions
               isSelectionMode={isSelectionMode}
@@ -97,7 +100,7 @@ export default function PostsContent({ posts }: PostsContentProps) {
             />
           )}
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           <UploadDialog />
         </div>
       </div>

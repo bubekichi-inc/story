@@ -21,7 +21,7 @@ export default function SelectionActions({
 }: SelectionActionsProps) {
   if (isSelectionMode) {
     return (
-      <>
+      <div className="flex items-center space-x-2">
         <button
           onClick={onSelectAll}
           className="flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
@@ -50,7 +50,7 @@ export default function SelectionActions({
           <X className="w-4 h-4" />
           <span>キャンセル</span>
         </button>
-      </>
+      </div>
     );
   }
 
