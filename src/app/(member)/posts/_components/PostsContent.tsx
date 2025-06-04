@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, X, Square, CheckSquare } from 'lucide-react';
 import { deleteMultiplePosts } from '../_actions/posts';
 import UploadDialog from './UploadDialog';
 import PostGrid from './PostGrid';
+import SelectionActions from './SelectionActions';
 
 interface PostImage {
   id: string;
@@ -85,45 +85,16 @@ export default function PostsContent({ posts }: PostsContentProps) {
       {/* アクションエリア */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
-          {isSelectionMode ? (
-            <>
-              <button
-                onClick={selectAllPosts}
-                className="flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
-              >
-                {selectedPosts.size === posts.length ? (
-                  <CheckSquare className="w-4 h-4" />
-                ) : (
-                  <Square className="w-4 h-4" />
-                )}
-                <span>全選択</span>
-              </button>
-              {selectedPosts.size > 0 && (
-                <button
-                  onClick={handleBulkDelete}
-                  disabled={isDeleting}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span>{isDeleting ? '削除中...' : `削除 (${selectedPosts.size})`}</span>
-                </button>
-              )}
-              <button
-                onClick={toggleSelectionMode}
-                className="flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
-              >
-                <X className="w-4 h-4" />
-                <span>キャンセル</span>
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={toggleSelectionMode}
-              className="flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
-            >
-              <Square className="w-4 h-4" />
-              <span>選択</span>
-            </button>
+          {posts.length > 0 && (
+            <SelectionActions
+              isSelectionMode={isSelectionMode}
+              selectedPosts={selectedPosts}
+              totalPosts={posts.length}
+              isDeleting={isDeleting}
+              onSelectAll={selectAllPosts}
+              onBulkDelete={handleBulkDelete}
+              onToggleSelectionMode={toggleSelectionMode}
+            />
           )}
         </div>
         <div className="flex items-center space-x-4">
