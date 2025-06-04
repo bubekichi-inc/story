@@ -44,11 +44,25 @@ interface Post {
 
 interface DraggablePostGridProps {
   posts: Post[];
+  isSelectionMode?: boolean;
+  selectedPosts?: Set<string>;
+  onToggleSelection?: (postId: string) => void;
 }
 
-function DraggablePostCard({ post }: { post: Post }) {
+function DraggablePostCard({
+  post,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection,
+}: {
+  post: Post;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: post.id,
+    disabled: isSelectionMode, // 選択モード時はドラッグを無効化
   });
 
   const style = {
@@ -59,14 +73,44 @@ function DraggablePostCard({ post }: { post: Post }) {
 
   const images = post.images.sort((a, b) => a.order - b.order);
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (isSelectionMode) {
+      e.preventDefault();
+      onToggleSelection?.();
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className="relative group cursor-grab active:cursor-grabbing"
+      {...(isSelectionMode ? {} : { ...attributes, ...listeners })}
+      className={`relative group ${
+        isSelectionMode ? 'cursor-pointer select-none' : 'cursor-grab active:cursor-grabbing'
+      }`}
+      onClick={handleClick}
     >
+      {/* 選択チェックボックス */}
+      {isSelectionMode && (
+        <div className="absolute top-2 left-2 z-10">
+          <div
+            className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+              isSelected ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white border-gray-300'
+            }`}
+          >
+            {isSelected && (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* メイン画像 */}
       <div className="aspect-[9/16] relative overflow-hidden shadow-card">
         <Image
@@ -89,7 +133,12 @@ function DraggablePostCard({ post }: { post: Post }) {
   );
 }
 
-export default function DraggablePostGrid({ posts }: DraggablePostGridProps) {
+export default function DraggablePostGrid({
+  posts,
+  isSelectionMode = false,
+  selectedPosts = new Set(),
+  onToggleSelection,
+}: DraggablePostGridProps) {
   const [items, setItems] = useState(posts);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -145,7 +194,13 @@ export default function DraggablePostGrid({ posts }: DraggablePostGridProps) {
         <SortableContext items={items.map((item) => item.id)} strategy={rectSortingStrategy}>
           <div className="grid grid-cols-5 gap-4">
             {items.map((post) => (
-              <DraggablePostCard key={post.id} post={post} />
+              <DraggablePostCard
+                key={post.id}
+                post={post}
+                isSelectionMode={isSelectionMode}
+                isSelected={selectedPosts.has(post.id)}
+                onToggleSelection={() => onToggleSelection?.(post.id)}
+              />
             ))}
           </div>
         </SortableContext>

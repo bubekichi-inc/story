@@ -263,3 +263,81 @@ export async function deletePost(postId: string): Promise<UploadResult> {
     };
   }
 }
+
+export async function deleteMultiplePosts(postIds: string[]): Promise<UploadResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      message: 'ログインが必要です',
+    };
+  }
+
+  if (postIds.length === 0) {
+    return {
+      success: false,
+      message: '削除する投稿が選択されていません',
+    };
+  }
+
+  try {
+    // 投稿とその画像を取得
+    const posts = await prisma.post.findMany({
+      where: {
+        id: { in: postIds },
+        userId: user.id,
+      },
+      include: {
+        images: true,
+      },
+    });
+
+    if (posts.length === 0) {
+      return {
+        success: false,
+        message: '削除可能な投稿が見つかりません',
+      };
+    }
+
+    // Storageから画像を削除
+    const deletePromises = [];
+    for (const post of posts) {
+      for (const image of post.images) {
+        // URLからファイル名を抽出
+        const urlParts = image.imageUrl.split('/');
+        const fileName = urlParts.slice(-2).join('/'); // "userId/filename" の形式
+        if (fileName) {
+          deletePromises.push(supabase.storage.from('story-images').remove([fileName]));
+        }
+      }
+    }
+
+    // ストレージから画像を削除
+    await Promise.all(deletePromises);
+
+    // 投稿を削除（カスケードでPostImageも削除される）
+    await prisma.post.deleteMany({
+      where: {
+        id: { in: postIds },
+        userId: user.id,
+      },
+    });
+
+    revalidatePath('/posts');
+    return {
+      success: true,
+      message: `${posts.length}件の投稿を削除しました`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `投稿の削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    };
+  }
+}

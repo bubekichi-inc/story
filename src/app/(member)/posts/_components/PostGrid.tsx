@@ -43,14 +43,56 @@ interface Post {
 
 interface PostGridProps {
   posts: Post[];
+  isSelectionMode?: boolean;
+  selectedPosts?: Set<string>;
+  onToggleSelection?: (postId: string) => void;
 }
 
 // SSR用の静的なPostCard（ドラッグ機能なし）
-function StaticPostCard({ post }: { post: Post }) {
+function StaticPostCard({
+  post,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection,
+}: {
+  post: Post;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
+}) {
   const images = post.images.sort((a, b) => a.order - b.order);
 
   return (
-    <div className="relative group cursor-pointer">
+    <div
+      className={`relative group cursor-pointer ${isSelectionMode ? 'select-none' : ''}`}
+      onClick={isSelectionMode ? onToggleSelection : undefined}
+    >
+      {/* 選択チェックボックス */}
+      {isSelectionMode && (
+        <div className="absolute top-2 left-2 z-10">
+          <div
+            className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+              isSelected ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white border-gray-300'
+            }`}
+          >
+            {isSelected && (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 選択時のオーバーレイ */}
+      {isSelectionMode && isSelected && (
+        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 z-5"></div>
+      )}
+
       {/* メイン画像 */}
       <div className="aspect-[9/16] relative overflow-hidden shadow-card">
         <Image
@@ -73,7 +115,12 @@ function StaticPostCard({ post }: { post: Post }) {
   );
 }
 
-export default function PostGrid({ posts }: PostGridProps) {
+export default function PostGrid({
+  posts,
+  isSelectionMode = false,
+  selectedPosts = new Set(),
+  onToggleSelection,
+}: PostGridProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   // クライアント側でのみマウントされるかどうかを判定
@@ -98,12 +145,25 @@ export default function PostGrid({ posts }: PostGridProps) {
     return (
       <div className="grid grid-cols-5 gap-4">
         {posts.map((post) => (
-          <StaticPostCard key={post.id} post={post} />
+          <StaticPostCard
+            key={post.id}
+            post={post}
+            isSelectionMode={isSelectionMode}
+            isSelected={selectedPosts.has(post.id)}
+            onToggleSelection={() => onToggleSelection?.(post.id)}
+          />
         ))}
       </div>
     );
   }
 
   // クライアント側でマウント後はドラッグアンドドロップ対応のグリッドを表示
-  return <DraggablePostGrid posts={posts} />;
+  return (
+    <DraggablePostGrid
+      posts={posts}
+      isSelectionMode={isSelectionMode}
+      selectedPosts={selectedPosts}
+      onToggleSelection={onToggleSelection}
+    />
+  );
 }
