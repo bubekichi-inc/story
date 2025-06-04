@@ -4,6 +4,7 @@ import { Calendar, Copy } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import PostDetailModal from './PostDetailModal';
 
 // ドラッグアンドドロップ機能を持つコンポーネントを動的にインポート
 const DraggablePostGrid = dynamic(() => import('./DraggablePostGrid'), {
@@ -46,6 +47,8 @@ interface PostGridProps {
   isSelectionMode?: boolean;
   selectedPosts?: Set<string>;
   onToggleSelection?: (postId: string) => void;
+  onPostDeleted?: (postId: string) => void;
+  onPostUpdated?: (post: Post) => void;
 }
 
 // SSR用の静的なPostCard（ドラッグ機能なし）
@@ -54,18 +57,28 @@ function StaticPostCard({
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection,
+  onPostClick,
 }: {
   post: Post;
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: () => void;
+  onPostClick?: (post: Post) => void;
 }) {
   const images = post.images.sort((a, b) => a.order - b.order);
+
+  const handleClick = () => {
+    if (isSelectionMode) {
+      onToggleSelection?.();
+    } else {
+      onPostClick?.(post);
+    }
+  };
 
   return (
     <div
       className={`relative group cursor-pointer ${isSelectionMode ? 'select-none' : ''}`}
-      onClick={isSelectionMode ? onToggleSelection : undefined}
+      onClick={handleClick}
     >
       {/* 選択チェックボックス */}
       {isSelectionMode && (
@@ -94,19 +107,19 @@ function StaticPostCard({
       )}
 
       {/* メイン画像 */}
-      <div className="aspect-[9/16] relative overflow-hidden shadow-card">
+      <div className="aspect-[9/16] relative overflow-hidden shadow-card pointer-events-none">
         <Image
           src={images[0].imageUrl}
           alt={images[0].fileName}
           height={800}
           width={450}
-          className="object-cover"
+          className="object-cover pointer-events-none"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 20vw, 20vw"
         />
 
         {/* 複数枚アイコン */}
         {images.length > 1 && (
-          <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5">
+          <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5 pointer-events-none">
             <Copy className="w-4 h-4 text-white" />
           </div>
         )}
@@ -120,13 +133,35 @@ export default function PostGrid({
   isSelectionMode = false,
   selectedPosts = new Set(),
   onToggleSelection,
+  onPostDeleted,
+  onPostUpdated,
 }: PostGridProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // クライアント側でのみマウントされるかどうかを判定
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handlePostClick = (post: Post) => {
+    setSelectedPost(post);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPost(null);
+  };
+
+  const handlePostDeleted = (postId: string) => {
+    onPostDeleted?.(postId);
+  };
+
+  const handlePostUpdated = (updatedPost: Post) => {
+    onPostUpdated?.(updatedPost);
+  };
 
   if (posts.length === 0) {
     return (
@@ -151,6 +186,7 @@ export default function PostGrid({
             isSelectionMode={isSelectionMode}
             isSelected={selectedPosts.has(post.id)}
             onToggleSelection={() => onToggleSelection?.(post.id)}
+            onPostClick={handlePostClick}
           />
         ))}
       </div>
@@ -159,11 +195,21 @@ export default function PostGrid({
 
   // クライアント側でマウント後はドラッグアンドドロップ対応のグリッドを表示
   return (
-    <DraggablePostGrid
-      posts={posts}
-      isSelectionMode={isSelectionMode}
-      selectedPosts={selectedPosts}
-      onToggleSelection={onToggleSelection}
-    />
+    <>
+      <DraggablePostGrid
+        posts={posts}
+        isSelectionMode={isSelectionMode}
+        selectedPosts={selectedPosts}
+        onToggleSelection={onToggleSelection}
+        onPostClick={handlePostClick}
+      />
+      <PostDetailModal
+        post={selectedPost}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onPostDeleted={handlePostDeleted}
+        onPostUpdated={handlePostUpdated}
+      />
+    </>
   );
 }

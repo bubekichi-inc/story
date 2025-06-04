@@ -330,13 +330,19 @@ export async function updatePostOrder(postIds: string[]): Promise<UploadResult> 
   }
 }
 
-export async function deletePost(postId: string): Promise<UploadResult> {
+/**
+ * 投稿画像の順番を更新する
+ */
+export async function updatePostImageOrder(
+  imageIds: string[]
+): Promise<{ success: boolean; message: string }> {
   const supabase = await createClient();
 
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
+
   if (authError || !user) {
     return {
       success: false,
@@ -345,38 +351,158 @@ export async function deletePost(postId: string): Promise<UploadResult> {
   }
 
   try {
-    // 投稿とその画像を取得
-    const post = await prisma.post.findUnique({
-      where: {
-        id: postId,
-        userId: user.id,
+    // トランザクションで順番を更新
+    await prisma.$transaction(async (tx) => {
+      for (let i = 0; i < imageIds.length; i++) {
+        await tx.postImage.update({
+          where: {
+            id: imageIds[i],
+          },
+          data: {
+            order: i,
+          },
+        });
+      }
+    });
+
+    revalidatePath('/posts');
+    return {
+      success: true,
+      message: '画像の順番を更新しました',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `順番の更新に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    };
+  }
+}
+
+/**
+ * 投稿画像を削除する
+ */
+export async function deletePostImage(
+  imageId: string
+): Promise<{ success: boolean; message: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      message: 'ログインが必要です',
+    };
+  }
+
+  try {
+    // 画像の詳細を取得
+    const image = await prisma.postImage.findUnique({
+      where: { id: imageId },
+      include: {
+        post: true,
       },
+    });
+
+    if (!image || image.post.userId !== user.id) {
+      return {
+        success: false,
+        message: '画像が見つからないか、権限がありません',
+      };
+    }
+
+    // 投稿に含まれる画像の数をチェック
+    const imageCount = await prisma.postImage.count({
+      where: { postId: image.postId },
+    });
+
+    if (imageCount <= 1) {
+      return {
+        success: false,
+        message: '投稿には最低1枚の画像が必要です',
+      };
+    }
+
+    // Supabaseから画像ファイルを削除
+    const fileName = image.imageUrl.split('/').pop();
+    if (fileName) {
+      const { error: deleteError } = await supabase.storage
+        .from('posts')
+        .remove([`${user.id}/${fileName}`]);
+
+      if (deleteError) {
+        console.error('Supabaseからの画像削除エラー:', deleteError);
+      }
+    }
+
+    // データベースから画像を削除
+    await prisma.postImage.delete({
+      where: { id: imageId },
+    });
+
+    revalidatePath('/posts');
+    return {
+      success: true,
+      message: '画像を削除しました',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `画像の削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    };
+  }
+}
+
+/**
+ * 投稿を削除する
+ */
+export async function deletePost(postId: string): Promise<{ success: boolean; message: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      message: 'ログインが必要です',
+    };
+  }
+
+  try {
+    // 投稿の詳細を取得
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
       include: {
         images: true,
       },
     });
 
-    if (!post) {
+    if (!post || post.userId !== user.id) {
       return {
         success: false,
-        message: '投稿が見つかりません',
+        message: '投稿が見つからないか、権限がありません',
       };
     }
 
-    // Storageから画像を削除
-    for (const image of post.images) {
+    // Supabaseから画像ファイルを削除
+    const deletePromises = post.images.map(async (image) => {
       const fileName = image.imageUrl.split('/').pop();
       if (fileName) {
-        await supabase.storage.from('story-images').remove([fileName]);
+        await supabase.storage.from('posts').remove([`${user.id}/${fileName}`]);
       }
-    }
+    });
 
-    // 投稿を削除（カスケードでPostImageも削除される）
+    await Promise.all(deletePromises);
+
+    // データベースから投稿を削除（画像もcascadeで削除される）
     await prisma.post.delete({
-      where: {
-        id: postId,
-        userId: user.id,
-      },
+      where: { id: postId },
     });
 
     revalidatePath('/posts');
@@ -384,10 +510,10 @@ export async function deletePost(postId: string): Promise<UploadResult> {
       success: true,
       message: '投稿を削除しました',
     };
-  } catch {
+  } catch (error) {
     return {
       success: false,
-      message: '投稿の削除に失敗しました',
+      message: `投稿の削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
     };
   }
 }

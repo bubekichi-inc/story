@@ -47,6 +47,7 @@ interface DraggablePostGridProps {
   isSelectionMode?: boolean;
   selectedPosts?: Set<string>;
   onToggleSelection?: (postId: string) => void;
+  onPostClick?: (post: Post) => void;
 }
 
 function DraggablePostCard({
@@ -54,11 +55,13 @@ function DraggablePostCard({
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection,
+  onPostClick,
 }: {
   post: Post;
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: () => void;
+  onPostClick?: (post: Post) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: post.id,
@@ -74,9 +77,27 @@ function DraggablePostCard({
   const images = post.images.sort((a, b) => a.order - b.order);
 
   const handleClick = (e: React.MouseEvent) => {
+    // ドラッグ中はクリックを無効にする
+    if (isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isSelectionMode) {
+      onToggleSelection?.();
+    } else {
+      onPostClick?.(post);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
     if (isSelectionMode) {
       e.preventDefault();
-      onToggleSelection?.();
+      e.stopPropagation();
     }
   };
 
@@ -84,11 +105,12 @@ function DraggablePostCard({
     <div
       ref={setNodeRef}
       style={style}
-      {...(isSelectionMode ? {} : { ...attributes, ...listeners })}
+      {...(!isSelectionMode ? { ...attributes, ...listeners } : {})}
       className={`relative group ${
         isSelectionMode ? 'cursor-pointer select-none' : 'cursor-grab active:cursor-grabbing'
       }`}
       onClick={handleClick}
+      onMouseDown={handleMouseDown}
     >
       {/* 選択チェックボックス */}
       {isSelectionMode && (
@@ -112,19 +134,19 @@ function DraggablePostCard({
       )}
 
       {/* メイン画像 */}
-      <div className="aspect-[9/16] relative overflow-hidden shadow-card">
+      <div className="aspect-[9/16] relative overflow-hidden shadow-card pointer-events-none">
         <Image
           src={images[0].imageUrl}
           alt={images[0].fileName}
           height={800}
           width={450}
-          className="object-cover"
+          className="object-cover pointer-events-none"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 20vw, 20vw"
         />
 
         {/* 複数枚アイコン */}
         {images.length > 1 && (
-          <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5">
+          <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1.5 pointer-events-none">
             <Copy className="w-4 h-4 text-white" />
           </div>
         )}
@@ -138,7 +160,14 @@ export default function DraggablePostGrid({
   isSelectionMode = false,
   selectedPosts = new Set(),
   onToggleSelection,
+  onPostClick,
 }: DraggablePostGridProps) {
+  console.log('DraggablePostGrid props:', {
+    postsCount: posts.length,
+    isSelectionMode,
+    hasOnPostClick: !!onPostClick,
+  }); // デバッグログ
+
   const [items, setItems] = useState(posts);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -148,7 +177,11 @@ export default function DraggablePostGrid({
   }, [posts]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px以上ドラッグしないとドラッグとして認識しない
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -200,6 +233,7 @@ export default function DraggablePostGrid({
                 isSelectionMode={isSelectionMode}
                 isSelected={selectedPosts.has(post.id)}
                 onToggleSelection={() => onToggleSelection?.(post.id)}
+                onPostClick={onPostClick}
               />
             ))}
           </div>
