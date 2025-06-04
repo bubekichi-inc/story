@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { User, LogOut, Menu } from 'lucide-react';
 import { signOut } from '@/app/_actions/auth';
+import Link from 'next/link';
 
 interface MemberLayoutProps {
   children: React.ReactNode;
@@ -55,24 +56,24 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
 
       <div className="flex pt-10">
         {/* サイドバー */}
-        <aside className="w-32 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-10">
+        <aside className="w-40 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-10">
           <nav className="p-2">
             <ul className="space-y-1">
               <li>
-                <a
+                <Link
                   href="/posts"
-                  className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
                 >
-                  <Menu className="w-3 h-3" />
-                  投稿一覧
-                </a>
+                  <Menu className="size-4" />
+                  <span>投稿一覧</span>
+                </Link>
               </li>
             </ul>
           </nav>
         </aside>
 
         {/* メインコンテンツ */}
-        <main className="flex-1 ml-32">
+        <main className="flex-1 ml-40">
           <div className="p-4">{children}</div>
         </main>
       </div>
