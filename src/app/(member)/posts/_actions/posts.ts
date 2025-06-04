@@ -469,3 +469,106 @@ export async function deleteMultiplePosts(postIds: string[]): Promise<UploadResu
     };
   }
 }
+
+export async function mergePosts(
+  postIds: string[]
+): Promise<{ success: boolean; message: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      message: 'ログインが必要です',
+    };
+  }
+
+  if (postIds.length < 2) {
+    return {
+      success: false,
+      message: '統合するには2つ以上の投稿を選択してください',
+    };
+  }
+
+  try {
+    // 統合対象の投稿と画像を取得
+    const posts = await prisma.post.findMany({
+      where: {
+        id: { in: postIds },
+        userId: user.id,
+      },
+      include: {
+        images: {
+          orderBy: {
+            order: 'asc',
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    if (posts.length < 2) {
+      return {
+        success: false,
+        message: '統合可能な投稿が見つかりません',
+      };
+    }
+
+    // 新しい投稿の order を取得
+    const maxOrder = await prisma.post.findFirst({
+      where: { userId: user.id },
+      orderBy: { order: 'desc' },
+      select: { order: true },
+    });
+    const newOrder = (maxOrder?.order ?? 0) + 1;
+
+    // 全ての画像を収集し、新しい order を付与
+    const allImages = posts.flatMap((post) => post.images);
+    const mergedImagesData = allImages.map((image, index) => ({
+      imageUrl: image.imageUrl,
+      fileName: image.fileName,
+      fileSize: image.fileSize,
+      mimeType: image.mimeType,
+      order: index + 1,
+    }));
+
+    // トランザクションで新しい投稿を作成し、古い投稿を削除
+    await prisma.$transaction(async (tx) => {
+      // 新しい投稿を作成
+      const newPost = await tx.post.create({
+        data: {
+          userId: user.id,
+          order: newOrder,
+          images: {
+            create: mergedImagesData,
+          },
+        },
+      });
+
+      // 元の投稿を削除（画像も cascade で削除される）
+      await tx.post.deleteMany({
+        where: {
+          id: { in: postIds },
+          userId: user.id,
+        },
+      });
+    });
+
+    revalidatePath('/posts');
+    return {
+      success: true,
+      message: `${posts.length}件の投稿を1つに統合しました`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `投稿の統合に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    };
+  }
+}

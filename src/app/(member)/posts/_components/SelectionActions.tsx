@@ -1,12 +1,14 @@
-import { Square, CheckSquare, Trash2, X } from 'lucide-react';
+import { Square, CheckSquare, Trash2, X, Layers } from 'lucide-react';
 
 interface SelectionActionsProps {
   isSelectionMode: boolean;
   selectedPosts: Set<string>;
   totalPosts: number;
   isDeleting: boolean;
+  isMerging: boolean;
   onSelectAll: () => void;
   onBulkDelete: () => void;
+  onMergePosts: () => void;
   onToggleSelectionMode: () => void;
 }
 
@@ -15,8 +17,10 @@ export default function SelectionActions({
   selectedPosts,
   totalPosts,
   isDeleting,
+  isMerging,
   onSelectAll,
   onBulkDelete,
+  onMergePosts,
   onToggleSelectionMode,
 }: SelectionActionsProps) {
   if (isSelectionMode) {
@@ -34,14 +38,28 @@ export default function SelectionActions({
           <span>全選択</span>
         </button>
         {selectedPosts.size > 0 && (
-          <button
-            onClick={onBulkDelete}
-            disabled={isDeleting}
-            className="flex items-center space-x-2 px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>{isDeleting ? '削除中...' : `削除 (${selectedPosts.size})`}</span>
-          </button>
+          <>
+            {selectedPosts.size >= 2 && (
+              <button
+                onClick={onMergePosts}
+                disabled={isMerging}
+                className="flex items-center space-x-2 px-3 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+              >
+                <Layers className="w-4 h-4" />
+                <span>
+                  {isMerging ? 'まとめ中...' : `1つの投稿にまとめる (${selectedPosts.size})`}
+                </span>
+              </button>
+            )}
+            <button
+              onClick={onBulkDelete}
+              disabled={isDeleting}
+              className="flex items-center space-x-2 px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>{isDeleting ? '削除中...' : `削除 (${selectedPosts.size})`}</span>
+            </button>
+          </>
         )}
         <button
           onClick={onToggleSelectionMode}

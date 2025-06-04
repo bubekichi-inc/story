@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { deleteMultiplePosts } from '../_actions/posts';
+import { deleteMultiplePosts, mergePosts } from '../_actions/posts';
 import UploadDialog from './UploadDialog';
 import PostGrid from './PostGrid';
 import SelectionActions from './SelectionActions';
@@ -34,6 +34,7 @@ export default function PostsContent({ posts }: PostsContentProps) {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isMerging, setIsMerging] = useState(false);
 
   const toggleSelectionMode = () => {
     setIsSelectionMode(!isSelectionMode);
@@ -80,6 +81,28 @@ export default function PostsContent({ posts }: PostsContentProps) {
     }
   };
 
+  const handleMergePosts = async () => {
+    if (selectedPosts.size < 2) return;
+
+    const confirmed = confirm(`選択した${selectedPosts.size}件の投稿を1つにまとめますか？`);
+    if (!confirmed) return;
+
+    setIsMerging(true);
+    try {
+      const result = await mergePosts(Array.from(selectedPosts));
+      if (result.success) {
+        setSelectedPosts(new Set());
+        setIsSelectionMode(false);
+      } else {
+        alert(result.message);
+      }
+    } catch {
+      alert('統合に失敗しました');
+    } finally {
+      setIsMerging(false);
+    }
+  };
+
   return (
     <div className="container mx-auto">
       {/* アクションエリア */}
@@ -94,8 +117,10 @@ export default function PostsContent({ posts }: PostsContentProps) {
               selectedPosts={selectedPosts}
               totalPosts={posts.length}
               isDeleting={isDeleting}
+              isMerging={isMerging}
               onSelectAll={selectAllPosts}
               onBulkDelete={handleBulkDelete}
+              onMergePosts={handleMergePosts}
               onToggleSelectionMode={toggleSelectionMode}
             />
           )}
