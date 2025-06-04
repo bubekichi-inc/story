@@ -85,8 +85,8 @@ export default function UploadDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-purple-600 to-pink-600">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 font-bold">
+          <Plus className="w-4 h-4 mr-1" />
           画像をアップロード
         </Button>
       </DialogTrigger>
