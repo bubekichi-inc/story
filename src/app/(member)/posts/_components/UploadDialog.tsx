@@ -12,7 +12,7 @@ import {
 } from '@/app/_components/ui/dialog';
 import { Input } from '@/app/_components/ui/input';
 import { Label } from '@/app/_components/ui/label';
-import { createPost } from '@/app/(member)/posts/_actions/posts';
+import { createSinglePost } from '@/app/(member)/posts/_actions/posts';
 import { Plus, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 
@@ -21,6 +21,9 @@ export default function UploadDialog() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
+    null
+  );
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -55,30 +58,64 @@ export default function UploadDialog() {
     }
 
     setLoading(true);
+    setUploadProgress({ current: 0, total: selectedFiles.length });
     setMessage(`${selectedFiles.length}件の投稿を作成中...`);
 
     try {
-      // 選択したファイルをFormDataに追加
-      selectedFiles.forEach((file) => {
-        formData.append('images', file);
-      });
+      let successCount = 0;
+      let failCount = 0;
+      const errors: string[] = [];
 
-      const result = await createPost(formData);
+      // 画像を一つずつ順次処理
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        setUploadProgress({ current: i + 1, total: selectedFiles.length });
+        setMessage(`${i + 1}/${selectedFiles.length}件目を処理中... (${file.name})`);
 
-      if (result.success) {
-        setMessage(result.message);
+        // 個別のFormDataを作成
+        const singleFormData = new FormData();
+        singleFormData.append('image', file);
+
+        try {
+          const result = await createSinglePost(singleFormData);
+
+          if (result.success) {
+            successCount++;
+          } else {
+            failCount++;
+            errors.push(`${file.name}: ${result.message}`);
+          }
+        } catch (error) {
+          failCount++;
+          errors.push(`${file.name}: 処理に失敗しました`);
+        }
+      }
+
+      // 結果をユーザーに表示
+      if (failCount === 0) {
+        setMessage(`${successCount}件の投稿を作成しました！`);
         setSelectedFiles([]);
         setTimeout(() => {
           setOpen(false);
           setMessage('');
+          setUploadProgress(null);
         }, 1500);
+      } else if (successCount > 0) {
+        setMessage(`${successCount}件成功、${failCount}件失敗しました。`);
+        // 失敗した画像のみ残す
+        const failedFiles = selectedFiles.filter((_, index) => {
+          const fileName = selectedFiles[index].name;
+          return errors.some((error) => error.startsWith(fileName));
+        });
+        setSelectedFiles(failedFiles);
       } else {
-        setMessage(result.message);
+        setMessage(`すべての投稿作成に失敗しました。エラー: ${errors.join(', ')}`);
       }
-    } catch {
+    } catch (error) {
       setMessage('投稿の作成に失敗しました');
     } finally {
       setLoading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -160,6 +197,25 @@ export default function UploadDialog() {
             </div>
           )}
 
+          {uploadProgress && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>進行状況</span>
+                <span>
+                  {uploadProgress.current}/{uploadProgress.total}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
+          )}
+
           {message && (
             <div
               className={`text-sm ${
@@ -183,7 +239,9 @@ export default function UploadDialog() {
             </Button>
             <Button type="submit" disabled={loading || selectedFiles.length === 0}>
               {loading
-                ? `${selectedFiles.length}件の投稿を作成中...`
+                ? uploadProgress
+                  ? `${uploadProgress.current}/${uploadProgress.total}件処理中...`
+                  : `${selectedFiles.length}件の投稿を作成中...`
                 : `${selectedFiles.length}件の投稿を作成`}
             </Button>
           </div>
