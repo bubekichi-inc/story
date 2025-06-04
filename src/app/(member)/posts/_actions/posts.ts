@@ -194,7 +194,7 @@ export async function updatePostOrder(postIds: string[]): Promise<UploadResult> 
       success: true,
       message: '順番を更新しました',
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: '順番の更新に失敗しました',
@@ -256,7 +256,7 @@ export async function deletePost(postId: string): Promise<UploadResult> {
       success: true,
       message: '投稿を削除しました',
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: '投稿の削除に失敗しました',

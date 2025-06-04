@@ -75,7 +75,7 @@ export default function UploadDialog() {
       } else {
         setMessage(result.message);
       }
-    } catch (error) {
+    } catch {
       setMessage('投稿の作成に失敗しました');
     } finally {
       setLoading(false);

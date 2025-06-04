@@ -73,7 +73,7 @@ export default function PostsContent({ posts }: PostsContentProps) {
       } else {
         alert(result.message);
       }
-    } catch (error) {
+    } catch {
       alert('削除に失敗しました');
     } finally {
       setIsDeleting(false);
