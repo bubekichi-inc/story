@@ -180,7 +180,7 @@ export default function DraggableImageCard({
       className="flex gap-4 p-4 border rounded-lg bg-white items-start"
     >
       {/* 左側：画像 */}
-      <div className="relative group w-48 aspect-[9/16] bg-black overflow-hidden flex-shrink-0">
+      <div className="relative group w-[320px] aspect-[9/16] bg-black overflow-hidden flex-shrink-0">
         {/* ドラッグハンドル領域（削除ボタン以外） */}
         <div
           {...listeners}
@@ -198,14 +198,6 @@ export default function DraggableImageCard({
         >
           <X className="w-4 h-4 text-white" />
         </button>
-
-        {/* ドラッグハンドルアイコン */}
-        <div
-          {...listeners}
-          className="absolute top-2 left-2 z-20 bg-gray-700 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-        >
-          <GripVertical className="w-4 h-4 text-white" />
-        </div>
 
         <Image
           src={image.imageUrl}
@@ -249,6 +241,7 @@ export default function DraggableImageCard({
             <Textarea
               value={threadsText}
               onChange={(e) => setThreadsText(e.target.value)}
+              rows={16}
               placeholder="Threads用のテキストを入力..."
               className={`min-h-20 transition-all duration-300 ${
                 !showThreadsText
@@ -269,7 +262,7 @@ export default function DraggableImageCard({
               }
             />
             {showThreadsText && isGeneratingThreads && !threadsText && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="absolute top-12 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
@@ -329,7 +322,7 @@ export default function DraggableImageCard({
               }
             />
             {showXText && isGeneratingX && !xText && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="absolute top-12 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
