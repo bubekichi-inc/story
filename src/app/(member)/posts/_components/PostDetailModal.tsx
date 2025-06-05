@@ -69,21 +69,33 @@ function DraggableImageCard({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(image.id);
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
       className="relative group aspect-[9/16] overflow-hidden cursor-grab active:cursor-grabbing"
     >
+      {/* ドラッグハンドル領域（削除ボタン以外） */}
+      <div
+        {...listeners}
+        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        style={{ zIndex: 1 }}
+      />
+
       {/* 削除ボタン */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(image.id);
-        }}
-        className="absolute top-2 right-2 z-10 bg-red-500 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+        onClick={handleDeleteClick}
+        onMouseDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute top-2 right-2 z-20 bg-red-500 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 pointer-events-auto"
+        style={{ pointerEvents: 'auto' }}
       >
         <X className="w-4 h-4 text-white" />
       </button>
@@ -264,10 +276,6 @@ export default function PostDetailModal({
           {/* 画像一覧 */}
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">画像一覧</h3>
-            <p className="text-sm text-gray-600">
-              画像をドラッグして並び替えることができます。右上の×ボタンで画像を削除できます。
-            </p>
-
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
