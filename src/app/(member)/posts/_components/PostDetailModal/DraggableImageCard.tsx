@@ -120,6 +120,8 @@ export default function DraggableImageCard({
       handleAnalyzeImage('threads');
     } else if (!showThreadsText) {
       setThreadsText('');
+      // チェックを外したときもテキストの更新を通知
+      handleTextUpdate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showThreadsText]);
@@ -129,6 +131,8 @@ export default function DraggableImageCard({
       handleAnalyzeImage('x');
     } else if (!showXText) {
       setXText('');
+      // チェックを外したときもテキストの更新を通知
+      handleTextUpdate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showXText]);
