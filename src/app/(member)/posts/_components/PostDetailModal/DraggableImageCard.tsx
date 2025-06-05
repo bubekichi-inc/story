@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { X, GripVertical } from 'lucide-react';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 import { useChat } from '@ai-sdk/react';
 import { Textarea } from '@/app/_components/ui/textarea';

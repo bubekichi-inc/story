@@ -667,7 +667,7 @@ export async function mergePosts(
     // トランザクションで新しい投稿を作成し、古い投稿を削除
     await prisma.$transaction(async (tx) => {
       // 新しい投稿を作成
-      const newPost = await tx.post.create({
+      await tx.post.create({
         data: {
           userId: user.id,
           order: newOrder,

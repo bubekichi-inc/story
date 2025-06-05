@@ -51,7 +51,7 @@ export default function UploadDialog() {
     setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async () => {
     if (selectedFiles.length === 0) {
       setMessage('画像を選択してください');
       return;
@@ -85,7 +85,7 @@ export default function UploadDialog() {
             failCount++;
             errors.push(`${file.name}: ${result.message}`);
           }
-        } catch (error) {
+        } catch {
           failCount++;
           errors.push(`${file.name}: 処理に失敗しました`);
         }
@@ -111,7 +111,7 @@ export default function UploadDialog() {
       } else {
         setMessage(`すべての投稿作成に失敗しました。エラー: ${errors.join(', ')}`);
       }
-    } catch (error) {
+    } catch {
       setMessage('投稿の作成に失敗しました');
     } finally {
       setLoading(false);
