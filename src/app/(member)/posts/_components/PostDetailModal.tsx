@@ -23,6 +23,7 @@ import { X, Trash2, GripVertical, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/app/_components/ui/button';
 import { Textarea } from '@/app/_components/ui/textarea';
+import { useChat } from '@ai-sdk/react';
 import {
   updatePostImageOrder,
   deletePostImage,
@@ -73,6 +74,38 @@ function DraggableImageCard({
   const [showXText, setShowXText] = useState(!!image.xText);
   const [threadsText, setThreadsText] = useState(image.threadsText || '');
   const [xText, setXText] = useState(image.xText || '');
+  const [isGeneratingThreads, setIsGeneratingThreads] = useState(false);
+  const [isGeneratingX, setIsGeneratingX] = useState(false);
+
+  const threadsChat = useChat({
+    api: '/api/chat',
+    onFinish: (message) => {
+      if (message.role === 'assistant' && message.content) {
+        setThreadsText(message.content);
+        setIsGeneratingThreads(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Threads用テキスト生成エラー:', error);
+      setIsGeneratingThreads(false);
+      alert('Threads用テキストの生成に失敗しました');
+    },
+  });
+
+  const xChat = useChat({
+    api: '/api/chat',
+    onFinish: (message) => {
+      if (message.role === 'assistant' && message.content) {
+        setXText(message.content);
+        setIsGeneratingX(false);
+      }
+    },
+    onError: (error) => {
+      console.error('X用テキスト生成エラー:', error);
+      setIsGeneratingX(false);
+      alert('X用テキストの生成に失敗しました');
+    },
+  });
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: image.id,
@@ -90,16 +123,62 @@ function DraggableImageCard({
     onDelete(image.id);
   };
 
+  const handleAnalyzeImage = async (platform: 'threads' | 'x') => {
+    const prompt = platform === 'threads' 
+      ? 'この画像を見て、Threadsに投稿するのに適した魅力的なテキストを日本語で生成してください。親しみやすく、カジュアルなトーンで、ハッシュタグも含めてください。'
+      : 'この画像を見て、X（旧Twitter）に投稿するのに適した魅力的なテキストを日本語で生成してください。簡潔で印象的な文章にし、関連するハッシュタグも含めてください。';
+
+    if (platform === 'threads') {
+      setIsGeneratingThreads(true);
+      setThreadsText(''); // テキストエリアをクリア
+      await threadsChat.append({
+        role: 'user',
+        content: prompt,
+        experimental_attachments: [
+          {
+            url: image.imageUrl,
+            contentType: image.mimeType,
+            name: image.fileName,
+          },
+        ],
+      });
+    } else {
+      setIsGeneratingX(true);
+      setXText(''); // テキストエリアをクリア
+      await xChat.append({
+        role: 'user',
+        content: prompt,
+        experimental_attachments: [
+          {
+            url: image.imageUrl,
+            contentType: image.mimeType,
+            name: image.fileName,
+          },
+        ],
+      });
+    }
+  };
+
   const handleTextUpdate = async () => {
     const threads = showThreadsText ? threadsText : undefined;
     const x = showXText ? xText : undefined;
     await onTextUpdate(image.id, threads, x);
   };
 
-  // チェックボックスの状態が変わったときに自動保存
+  // チェックボックスの状態が変わったときの処理
   useEffect(() => {
-    handleTextUpdate();
-  }, [showThreadsText, showXText]);
+    if (showThreadsText && !threadsText && !isGeneratingThreads) {
+      // Threadsチェックボックスがオンになり、テキストが空で、生成中でない場合
+      handleAnalyzeImage('threads');
+    }
+  }, [showThreadsText]);
+
+  useEffect(() => {
+    if (showXText && !xText && !isGeneratingX) {
+      // Xチェックボックスがオンになり、テキストが空で、生成中でない場合
+      handleAnalyzeImage('x');
+    }
+  }, [showXText]);
 
   const handleThreadsTextChange = (value: string) => {
     setThreadsText(value);
@@ -111,6 +190,8 @@ function DraggableImageCard({
 
   // テキストが変更されたら自動保存（デバウンス）
   useEffect(() => {
+    if (isGeneratingThreads || isGeneratingX) return; // AI生成中は自動保存をスキップ
+    
     const timer = setTimeout(() => {
       if (showThreadsText || showXText) {
         handleTextUpdate();
@@ -119,6 +200,25 @@ function DraggableImageCard({
 
     return () => clearTimeout(timer);
   }, [threadsText, xText]);
+
+  // ストリーミング中のテキスト更新
+  useEffect(() => {
+    if (threadsChat.isLoading && threadsChat.messages.length > 0) {
+      const lastMessage = threadsChat.messages[threadsChat.messages.length - 1];
+      if (lastMessage.role === 'assistant' && lastMessage.content) {
+        setThreadsText(lastMessage.content);
+      }
+    }
+  }, [threadsChat.messages, threadsChat.isLoading]);
+
+  useEffect(() => {
+    if (xChat.isLoading && xChat.messages.length > 0) {
+      const lastMessage = xChat.messages[xChat.messages.length - 1];
+      if (lastMessage.role === 'assistant' && lastMessage.content) {
+        setXText(lastMessage.content);
+      }
+    }
+  }, [xChat.messages, xChat.isLoading]);
 
   return (
     <div
@@ -176,14 +276,18 @@ function DraggableImageCard({
               onChange={(e) => setShowThreadsText(e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm font-medium">Threadsに投稿</span>
+            <span className="text-sm font-medium">
+              Threadsに投稿 
+              {isGeneratingThreads && <span className="ml-2 text-blue-500">（AI生成中...）</span>}
+            </span>
           </label>
           {showThreadsText && (
             <Textarea
               value={threadsText}
               onChange={(e) => handleThreadsTextChange(e.target.value)}
-              placeholder="Threads用のテキストを入力..."
+              placeholder={isGeneratingThreads ? "AIがテキストを生成中..." : "Threads用のテキストを入力..."}
               className="min-h-20"
+              disabled={isGeneratingThreads}
             />
           )}
         </div>
@@ -197,14 +301,18 @@ function DraggableImageCard({
               onChange={(e) => setShowXText(e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm font-medium">Xに投稿</span>
+            <span className="text-sm font-medium">
+              Xに投稿
+              {isGeneratingX && <span className="ml-2 text-blue-500">（AI生成中...）</span>}
+            </span>
           </label>
           {showXText && (
             <Textarea
               value={xText}
               onChange={(e) => handleXTextChange(e.target.value)}
-              placeholder="X用のテキストを入力..."
+              placeholder={isGeneratingX ? "AIがテキストを生成中..." : "X用のテキストを入力..."}
               className="min-h-20"
+              disabled={isGeneratingX}
             />
           )}
         </div>
