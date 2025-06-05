@@ -282,15 +282,31 @@ function DraggableImageCard({
       <div className="flex-1 space-y-4">
         {/* Threadsチェックボックスとテキストエリア */}
         <div className="space-y-2">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={showThreadsText}
-              onChange={(e) => setShowThreadsText(e.target.checked)}
-              className="rounded"
-            />
+          <button
+            onClick={() => setShowThreadsText(!showThreadsText)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
+              showThreadsText
+                ? 'bg-gradient-to-r from-blue-500 to-purple-600 border-blue-500 text-white shadow-lg'
+                : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+            }`}
+          >
+            <div
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                showThreadsText ? 'border-white bg-white' : 'border-gray-400 bg-transparent'
+              }`}
+            >
+              {showThreadsText && (
+                <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </div>
             <span className="text-sm font-medium">Threadsに投稿</span>
-          </label>
+          </button>
           {showThreadsText && (
             <div className="relative">
               <Textarea
@@ -329,15 +345,31 @@ function DraggableImageCard({
 
         {/* Xチェックボックスとテキストエリア */}
         <div className="space-y-2">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={showXText}
-              onChange={(e) => setShowXText(e.target.checked)}
-              className="rounded"
-            />
+          <button
+            onClick={() => setShowXText(!showXText)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
+              showXText
+                ? 'bg-gradient-to-r from-blue-500 to-purple-600 border-blue-500 text-white shadow-lg'
+                : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+            }`}
+          >
+            <div
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                showXText ? 'border-white bg-white' : 'border-gray-400 bg-transparent'
+              }`}
+            >
+              {showXText && (
+                <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </div>
             <span className="text-sm font-medium">Xに投稿</span>
-          </label>
+          </button>
           {showXText && (
             <div className="relative">
               <Textarea
