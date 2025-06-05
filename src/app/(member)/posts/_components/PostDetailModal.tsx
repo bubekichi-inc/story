@@ -125,7 +125,7 @@ function DraggableImageCard({
 
   const handleAnalyzeImage = async (platform: 'threads' | 'x') => {
     const prompt =
-      '画像を文字起こししてください。文字起こしされたテキスト以外はレスポンスに含めないでください。```といった記号も含めないでください。';
+      '画像を文字起こししてください。改行は読みやすいように入れてください。文字起こしされたテキスト以外はレスポンスに含めないでください。```といった記号も含めないでください。';
 
     if (platform === 'threads') {
       setIsGeneratingThreads(true);
@@ -169,6 +169,9 @@ function DraggableImageCard({
     if (showThreadsText && !threadsText && !isGeneratingThreads) {
       // Threadsチェックボックスがオンになり、テキストが空で、生成中でない場合
       handleAnalyzeImage('threads');
+    } else if (!showThreadsText) {
+      // Threadsチェックボックスがオフになった場合、テキストを削除
+      setThreadsText('');
     }
   }, [showThreadsText]);
 
@@ -176,6 +179,9 @@ function DraggableImageCard({
     if (showXText && !xText && !isGeneratingX) {
       // Xチェックボックスがオンになり、テキストが空で、生成中でない場合
       handleAnalyzeImage('x');
+    } else if (!showXText) {
+      // Xチェックボックスがオフになった場合、テキストを削除
+      setXText('');
     }
   }, [showXText]);
 
