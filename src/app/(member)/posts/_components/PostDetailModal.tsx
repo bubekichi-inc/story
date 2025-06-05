@@ -124,9 +124,8 @@ function DraggableImageCard({
   };
 
   const handleAnalyzeImage = async (platform: 'threads' | 'x') => {
-    const prompt = platform === 'threads' 
-      ? 'この画像を見て、Threadsに投稿するのに適した魅力的なテキストを日本語で生成してください。親しみやすく、カジュアルなトーンで、ハッシュタグも含めてください。'
-      : 'この画像を見て、X（旧Twitter）に投稿するのに適した魅力的なテキストを日本語で生成してください。簡潔で印象的な文章にし、関連するハッシュタグも含めてください。';
+    const prompt =
+      '画像を文字起こししてください。文字起こしされたテキスト以外はレスポンスに含めないでください。```といった記号も含めないでください。';
 
     if (platform === 'threads') {
       setIsGeneratingThreads(true);
@@ -191,7 +190,7 @@ function DraggableImageCard({
   // テキストが変更されたら自動保存（デバウンス）
   useEffect(() => {
     if (isGeneratingThreads || isGeneratingX) return; // AI生成中は自動保存をスキップ
-    
+
     const timer = setTimeout(() => {
       if (showThreadsText || showXText) {
         handleTextUpdate();
@@ -277,7 +276,7 @@ function DraggableImageCard({
               className="rounded"
             />
             <span className="text-sm font-medium">
-              Threadsに投稿 
+              Threadsに投稿
               {isGeneratingThreads && <span className="ml-2 text-blue-500">（AI生成中...）</span>}
             </span>
           </label>
@@ -285,7 +284,9 @@ function DraggableImageCard({
             <Textarea
               value={threadsText}
               onChange={(e) => handleThreadsTextChange(e.target.value)}
-              placeholder={isGeneratingThreads ? "AIがテキストを生成中..." : "Threads用のテキストを入力..."}
+              placeholder={
+                isGeneratingThreads ? 'AIがテキストを生成中...' : 'Threads用のテキストを入力...'
+              }
               className="min-h-20"
               disabled={isGeneratingThreads}
             />
@@ -310,7 +311,7 @@ function DraggableImageCard({
             <Textarea
               value={xText}
               onChange={(e) => handleXTextChange(e.target.value)}
-              placeholder={isGeneratingX ? "AIがテキストを生成中..." : "X用のテキストを入力..."}
+              placeholder={isGeneratingX ? 'AIがテキストを生成中...' : 'X用のテキストを入力...'}
               className="min-h-20"
               disabled={isGeneratingX}
             />
