@@ -17,7 +17,7 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Send } from 'lucide-react';
 import { Button } from '@/app/_components/ui/button';
 import {
   updatePostImageOrder,
@@ -27,6 +27,7 @@ import {
 } from '../../_actions/posts';
 import DraggableImageCard from './DraggableImageCard';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import { PostActionsDialog } from '../PostActionsDialog';
 import type { Post, PostImage } from './types';
 
 interface PostDetailModalProps {
@@ -189,6 +190,12 @@ export default function PostDetailModal({
           <DialogTitle className="flex items-center justify-between">
             <span>画像一覧</span>
             <div className="flex item-center space-x-2">
+              <PostActionsDialog postId={post.id}>
+                <Button size="sm">
+                  <Send className="w-4 h-4 mr-1" />
+                  投稿する
+                </Button>
+              </PostActionsDialog>
               <Button
                 variant="destructive"
                 size="sm"

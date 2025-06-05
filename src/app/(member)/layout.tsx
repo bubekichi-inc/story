@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { User, LogOut, Menu } from 'lucide-react';
+import { User, Menu, Calendar, LogOut } from 'lucide-react';
 import { signOut } from '@/app/_actions/auth';
 import Link from 'next/link';
+import { Toaster } from 'sonner';
 
 interface MemberLayoutProps {
   children: React.ReactNode;
@@ -68,6 +69,15 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
                   <span>投稿一覧</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/schedules"
+                  className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
+                >
+                  <Calendar className="size-4" />
+                  <span>スケジュール</span>
+                </Link>
+              </li>
             </ul>
           </nav>
         </aside>
@@ -77,6 +87,7 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
           <div className="p-4">{children}</div>
         </main>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }
