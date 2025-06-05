@@ -47,6 +47,7 @@ export default function PostDetailModal({
   const [images, setImages] = useState<PostImage[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -62,6 +63,14 @@ export default function PostDetailModal({
       setImages(sortedImages);
     }
   }, [post]);
+
+  // 保存成功メッセージを表示する関数
+  const showSaveSuccessMessage = () => {
+    setShowSaveSuccess(true);
+    setTimeout(() => {
+      setShowSaveSuccess(false);
+    }, 3000); // 2秒後に非表示
+  };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -90,6 +99,7 @@ export default function PostDetailModal({
             images: updatedImages,
           };
           onPostUpdated(updatedPost);
+          showSaveSuccessMessage(); // 保存成功メッセージを表示
         } else {
           // エラーの場合は元に戻す
           setImages(images);
@@ -161,7 +171,7 @@ export default function PostDetailModal({
     try {
       const result = await updatePostImageTexts(imageId, threadsText, xText);
       if (result.success) {
-        // 成功時は特に何もしない（自動保存）
+        showSaveSuccessMessage(); // 保存成功メッセージを表示
       } else {
         console.error('テキストの更新に失敗:', result.message);
       }
@@ -222,6 +232,13 @@ export default function PostDetailModal({
           onClose={() => setShowDeleteConfirm(false)}
           onConfirm={handleDeletePost}
         />
+
+        {/* 保存完了メッセージ */}
+        {showSaveSuccess && (
+          <div className="fixed bottom-4 right-4 bg-green-500 text-white px-3 py-2 rounded-md text-sm shadow-lg z-50 transition-opacity duration-300">
+            保存完了
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
