@@ -698,3 +698,63 @@ export async function mergePosts(
     };
   }
 }
+
+/**
+ * 投稿画像のThreads用とX用のテキストを更新する
+ */
+export async function updatePostImageTexts(
+  imageId: string,
+  threadsText?: string,
+  xText?: string
+): Promise<{ success: boolean; message: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      success: false,
+      message: 'ログインが必要です',
+    };
+  }
+
+  try {
+    // 画像の詳細を取得
+    const image = await prisma.postImage.findUnique({
+      where: { id: imageId },
+      include: {
+        post: true,
+      },
+    });
+
+    if (!image || image.post.userId !== user.id) {
+      return {
+        success: false,
+        message: '画像が見つからないか、権限がありません',
+      };
+    }
+
+    // 画像のテキストを更新
+    await prisma.postImage.update({
+      where: { id: imageId },
+      data: {
+        threadsText: threadsText || null,
+        xText: xText || null,
+      },
+    });
+
+    revalidatePath('/posts');
+    return {
+      success: true,
+      message: 'テキストを更新しました',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `テキストの更新に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`,
+    };
+  }
+}

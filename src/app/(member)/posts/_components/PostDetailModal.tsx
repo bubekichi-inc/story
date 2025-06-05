@@ -22,7 +22,13 @@ import { CSS } from '@dnd-kit/utilities';
 import { X, Trash2, GripVertical, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/app/_components/ui/button';
-import { updatePostImageOrder, deletePostImage, deletePost } from '../_actions/posts';
+import { Textarea } from '@/app/_components/ui/textarea';
+import {
+  updatePostImageOrder,
+  deletePostImage,
+  deletePost,
+  updatePostImageTexts,
+} from '../_actions/posts';
 
 interface PostImage {
   id: string;
@@ -32,6 +38,8 @@ interface PostImage {
   fileSize: number;
   mimeType: string;
   order: number;
+  threadsText?: string | null;
+  xText?: string | null;
   createdAt: Date;
 }
 
@@ -55,10 +63,17 @@ interface PostDetailModalProps {
 function DraggableImageCard({
   image,
   onDelete,
+  onTextUpdate,
 }: {
   image: PostImage;
   onDelete: (imageId: string) => void;
+  onTextUpdate: (imageId: string, threadsText?: string, xText?: string) => void;
 }) {
+  const [showThreadsText, setShowThreadsText] = useState(!!image.threadsText);
+  const [showXText, setShowXText] = useState(!!image.xText);
+  const [threadsText, setThreadsText] = useState(image.threadsText || '');
+  const [xText, setXText] = useState(image.xText || '');
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: image.id,
   });
@@ -75,39 +90,125 @@ function DraggableImageCard({
     onDelete(image.id);
   };
 
+  const handleTextUpdate = async () => {
+    const threads = showThreadsText ? threadsText : undefined;
+    const x = showXText ? xText : undefined;
+    await onTextUpdate(image.id, threads, x);
+  };
+
+  // チェックボックスの状態が変わったときに自動保存
+  useEffect(() => {
+    handleTextUpdate();
+  }, [showThreadsText, showXText]);
+
+  const handleThreadsTextChange = (value: string) => {
+    setThreadsText(value);
+  };
+
+  const handleXTextChange = (value: string) => {
+    setXText(value);
+  };
+
+  // テキストが変更されたら自動保存（デバウンス）
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (showThreadsText || showXText) {
+        handleTextUpdate();
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [threadsText, xText]);
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="relative group aspect-[9/16] overflow-hidden cursor-grab active:cursor-grabbing"
+      className="flex gap-4 p-4 border rounded-lg bg-white"
     >
-      {/* ドラッグハンドル領域（削除ボタン以外） */}
-      <div
-        {...listeners}
-        className="absolute inset-0 cursor-grab active:cursor-grabbing"
-        style={{ zIndex: 1 }}
-      />
+      {/* 左側：画像 */}
+      <div className="relative group w-48 aspect-[9/16] overflow-hidden flex-shrink-0">
+        {/* ドラッグハンドル領域（削除ボタン以外） */}
+        <div
+          {...listeners}
+          className="absolute inset-0 cursor-grab active:cursor-grabbing"
+          style={{ zIndex: 1 }}
+        />
 
-      {/* 削除ボタン */}
-      <button
-        onClick={handleDeleteClick}
-        onMouseDown={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
-        className="absolute top-2 right-2 z-20 bg-red-500 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 pointer-events-auto"
-        style={{ pointerEvents: 'auto' }}
-      >
-        <X className="w-4 h-4 text-white" />
-      </button>
+        {/* 削除ボタン */}
+        <button
+          onClick={handleDeleteClick}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute top-2 right-2 z-20 bg-red-500 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 pointer-events-auto"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <X className="w-4 h-4 text-white" />
+        </button>
 
-      {/* 画像 */}
-      <Image
-        src={image.imageUrl}
-        alt={image.fileName}
-        fill
-        className="object-cover"
-        sizes="(max-width: 768px) 50vw, 25vw"
-      />
+        {/* ドラッグハンドルアイコン */}
+        <div
+          {...listeners}
+          className="absolute top-2 left-2 z-20 bg-gray-700 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+        >
+          <GripVertical className="w-4 h-4 text-white" />
+        </div>
+
+        {/* 画像 */}
+        <Image
+          src={image.imageUrl}
+          alt={image.fileName}
+          fill
+          className="object-cover"
+          sizes="192px"
+        />
+      </div>
+
+      {/* 右側：テキストエリア */}
+      <div className="flex-1 space-y-4">
+        {/* Threadsチェックボックスとテキストエリア */}
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={showThreadsText}
+              onChange={(e) => setShowThreadsText(e.target.checked)}
+              className="rounded"
+            />
+            <span className="text-sm font-medium">Threadsに投稿</span>
+          </label>
+          {showThreadsText && (
+            <Textarea
+              value={threadsText}
+              onChange={(e) => handleThreadsTextChange(e.target.value)}
+              placeholder="Threads用のテキストを入力..."
+              className="min-h-20"
+            />
+          )}
+        </div>
+
+        {/* Xチェックボックスとテキストエリア */}
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={showXText}
+              onChange={(e) => setShowXText(e.target.checked)}
+              className="rounded"
+            />
+            <span className="text-sm font-medium">Xに投稿</span>
+          </label>
+          {showXText && (
+            <Textarea
+              value={xText}
+              onChange={(e) => handleXTextChange(e.target.value)}
+              placeholder="X用のテキストを入力..."
+              className="min-h-20"
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -232,6 +333,19 @@ export default function PostDetailModal({
     }
   };
 
+  const handleTextUpdate = async (imageId: string, threadsText?: string, xText?: string) => {
+    try {
+      const result = await updatePostImageTexts(imageId, threadsText, xText);
+      if (result.success) {
+        // 成功時は特に何もしない（自動保存）
+      } else {
+        console.error('テキストの更新に失敗:', result.message);
+      }
+    } catch (error) {
+      console.error('テキストの更新エラー:', error);
+    }
+  };
+
   if (!post) return null;
 
   return (
@@ -239,7 +353,7 @@ export default function PostDetailModal({
       <DialogContent className="w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pt-20">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>投稿詳細</span>
+            <span>画像一覧</span>
             <div className="flex items-center space-x-2">
               <Button
                 variant="destructive"
@@ -255,36 +369,22 @@ export default function PostDetailModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* 投稿情報 */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-gray-700">投稿日時:</span>
-                <p className="text-gray-900">{new Date(post.createdAt).toLocaleString('ja-JP')}</p>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">更新日時:</span>
-                <p className="text-gray-900">{new Date(post.updatedAt).toLocaleString('ja-JP')}</p>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">画像数:</span>
-                <p className="text-gray-900">{images.length}枚</p>
-              </div>
-            </div>
-          </div>
-
           {/* 画像一覧 */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">画像一覧</h3>
+          <div className="space-y-4">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={images.map((img) => img.id)} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="space-y-4">
                   {images.map((image) => (
-                    <DraggableImageCard key={image.id} image={image} onDelete={handleDeleteImage} />
+                    <DraggableImageCard
+                      key={image.id}
+                      image={image}
+                      onDelete={handleDeleteImage}
+                      onTextUpdate={handleTextUpdate}
+                    />
                   ))}
                 </div>
               </SortableContext>

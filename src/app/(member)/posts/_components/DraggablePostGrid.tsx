@@ -162,12 +162,6 @@ export default function DraggablePostGrid({
   onToggleSelection,
   onPostClick,
 }: DraggablePostGridProps) {
-  console.log('DraggablePostGrid props:', {
-    postsCount: posts.length,
-    isSelectionMode,
-    hasOnPostClick: !!onPostClick,
-  }); // デバッグログ
-
   const [items, setItems] = useState(posts);
   const [isUpdating, setIsUpdating] = useState(false);
 
