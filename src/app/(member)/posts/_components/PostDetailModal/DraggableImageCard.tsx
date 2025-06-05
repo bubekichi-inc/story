@@ -236,7 +236,7 @@ export default function DraggableImageCard({
                   </svg>
                 )}
               </div>
-              <span className="text-sm font-medium">Threadsに投稿</span>
+              <span className="text-sm font-medium">Threadsに転用</span>
             </button>
             <Textarea
               value={threadsText}
@@ -297,7 +297,7 @@ export default function DraggableImageCard({
                   </svg>
                 )}
               </div>
-              <span className="text-sm font-medium">Xに投稿</span>
+              <span className="text-sm font-medium">Xに転用</span>
             </button>
             <Textarea
               value={xText}
