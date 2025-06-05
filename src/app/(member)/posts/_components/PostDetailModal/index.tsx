@@ -178,7 +178,7 @@ export default function PostDetailModal({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>画像一覧</span>
-            <div className="flex items-center space-x-2">
+            <div className="flex item-center space-x-2">
               <Button
                 variant="destructive"
                 size="sm"
