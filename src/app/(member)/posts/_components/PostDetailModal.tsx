@@ -125,10 +125,10 @@ function DraggableImageCard({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="flex gap-4 p-4 border rounded-lg bg-white"
+      className="flex gap-4 p-4 border rounded-lg bg-white items-start"
     >
       {/* 左側：画像 */}
-      <div className="relative group w-48 aspect-[9/16] overflow-hidden flex-shrink-0">
+      <div className="relative group w-48 aspect-[9/16] bg-black overflow-hidden flex-shrink-0">
         {/* ドラッグハンドル領域（削除ボタン以外） */}
         <div
           {...listeners}
@@ -160,7 +160,7 @@ function DraggableImageCard({
           src={image.imageUrl}
           alt={image.fileName}
           fill
-          className="object-cover"
+          className="object-contain"
           sizes="192px"
         />
       </div>
