@@ -206,6 +206,10 @@ function DraggableImageCard({
       const lastMessage = threadsChat.messages[threadsChat.messages.length - 1];
       if (lastMessage.role === 'assistant' && lastMessage.content) {
         setThreadsText(lastMessage.content);
+        // テキストが生成され始めたら生成状態を更新
+        if (lastMessage.content.length > 0) {
+          setIsGeneratingThreads(false);
+        }
       }
     }
   }, [threadsChat.messages, threadsChat.isLoading]);
@@ -215,6 +219,10 @@ function DraggableImageCard({
       const lastMessage = xChat.messages[xChat.messages.length - 1];
       if (lastMessage.role === 'assistant' && lastMessage.content) {
         setXText(lastMessage.content);
+        // テキストが生成され始めたら生成状態を更新
+        if (lastMessage.content.length > 0) {
+          setIsGeneratingX(false);
+        }
       }
     }
   }, [xChat.messages, xChat.isLoading]);
@@ -275,21 +283,41 @@ function DraggableImageCard({
               onChange={(e) => setShowThreadsText(e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm font-medium">
-              Threadsに投稿
-              {isGeneratingThreads && <span className="ml-2 text-blue-500">（AI生成中...）</span>}
-            </span>
+            <span className="text-sm font-medium">Threadsに投稿</span>
           </label>
           {showThreadsText && (
-            <Textarea
-              value={threadsText}
-              onChange={(e) => handleThreadsTextChange(e.target.value)}
-              placeholder={
-                isGeneratingThreads ? 'AIがテキストを生成中...' : 'Threads用のテキストを入力...'
-              }
-              className="min-h-20"
-              disabled={isGeneratingThreads}
-            />
+            <div className="relative">
+              <Textarea
+                value={threadsText}
+                onChange={(e) => handleThreadsTextChange(e.target.value)}
+                placeholder="Threads用のテキストを入力..."
+                className={`min-h-20 transition-all duration-300 ${
+                  isGeneratingThreads && !threadsText
+                    ? 'bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50 bg-[length:200%_100%] animate-pulse border-blue-300'
+                    : ''
+                }`}
+                disabled={isGeneratingThreads && !threadsText}
+                style={
+                  isGeneratingThreads && !threadsText
+                    ? {
+                        animation: 'aiGradient 2s ease-in-out infinite',
+                        backgroundImage:
+                          'linear-gradient(45deg, #f0f9ff, #e0e7ff, #f3e8ff, #f0f9ff)',
+                        backgroundSize: '300% 300%',
+                      }
+                    : {}
+                }
+              />
+              {isGeneratingThreads && !threadsText && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -302,19 +330,41 @@ function DraggableImageCard({
               onChange={(e) => setShowXText(e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm font-medium">
-              Xに投稿
-              {isGeneratingX && <span className="ml-2 text-blue-500">（AI生成中...）</span>}
-            </span>
+            <span className="text-sm font-medium">Xに投稿</span>
           </label>
           {showXText && (
-            <Textarea
-              value={xText}
-              onChange={(e) => handleXTextChange(e.target.value)}
-              placeholder={isGeneratingX ? 'AIがテキストを生成中...' : 'X用のテキストを入力...'}
-              className="min-h-20"
-              disabled={isGeneratingX}
-            />
+            <div className="relative">
+              <Textarea
+                value={xText}
+                onChange={(e) => handleXTextChange(e.target.value)}
+                placeholder="X用のテキストを入力..."
+                className={`min-h-20 transition-all duration-300 ${
+                  isGeneratingX && !xText
+                    ? 'bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50 bg-[length:200%_100%] animate-pulse border-blue-300'
+                    : ''
+                }`}
+                disabled={isGeneratingX && !xText}
+                style={
+                  isGeneratingX && !xText
+                    ? {
+                        animation: 'aiGradient 2s ease-in-out infinite',
+                        backgroundImage:
+                          'linear-gradient(45deg, #f0f9ff, #e0e7ff, #f3e8ff, #f0f9ff)',
+                        backgroundSize: '300% 300%',
+                      }
+                    : {}
+                }
+              />
+              {isGeneratingX && !xText && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
