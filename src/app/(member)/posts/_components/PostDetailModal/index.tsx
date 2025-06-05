@@ -179,10 +179,7 @@ export default function PostDetailModal({
           <DialogTitle className="flex items-center justify-between">
             <span>画像一覧</span>
             <div className="flex items-center space-x-2">
-              <Button variant="default" size="sm" onClick={() => {}} disabled={isUpdating}>
-                今すぐ投稿
-              </Button>
-              {/* <Button
+              <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => setShowDeleteConfirm(true)}
@@ -190,7 +187,7 @@ export default function PostDetailModal({
               >
                 <Trash2 className="w-4 h-4 mr-1" />
                 投稿を削除
-              </Button> */}
+              </Button>
             </div>
           </DialogTitle>
         </DialogHeader>
