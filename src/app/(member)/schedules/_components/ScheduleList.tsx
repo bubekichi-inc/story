@@ -62,17 +62,6 @@ export function ScheduleList() {
     }
   };
 
-  const getScopeLabel = (scope: PostingScope) => {
-    switch (scope) {
-      case PostingScope.ALL:
-        return '全てのPost';
-      case PostingScope.SELECTED:
-        return '選択されたPost';
-      default:
-        return '不明';
-    }
-  };
-
   const parseRRule = (rrule: string | null) => {
     if (!rrule) return '設定なし';
 

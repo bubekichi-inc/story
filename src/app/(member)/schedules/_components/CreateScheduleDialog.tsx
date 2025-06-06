@@ -229,22 +229,6 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
             </select>
           </div>
 
-          {(formData.frequency === 'daily' ||
-            formData.frequency === 'weekly' ||
-            formData.frequency === 'hourly') && (
-            <div>
-              <Label htmlFor="hour">投稿時刻</Label>
-              <Input
-                id="hour"
-                type="number"
-                min="0"
-                max="23"
-                value={formData.hour}
-                onChange={(e) => setFormData({ ...formData, hour: parseInt(e.target.value) })}
-              />
-            </div>
-          )}
-
           {formData.frequency === 'weekly' && (
             <div>
               <Label htmlFor="weekday">曜日</Label>
@@ -262,6 +246,22 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
                 <option value={5}>金曜日</option>
                 <option value={6}>土曜日</option>
               </select>
+            </div>
+          )}
+
+          {(formData.frequency === 'daily' ||
+            formData.frequency === 'weekly' ||
+            formData.frequency === 'hourly') && (
+            <div>
+              <Label htmlFor="hour">投稿時刻</Label>
+              <Input
+                id="hour"
+                type="number"
+                min="0"
+                max="23"
+                value={formData.hour}
+                onChange={(e) => setFormData({ ...formData, hour: parseInt(e.target.value) })}
+              />
             </div>
           )}
 
