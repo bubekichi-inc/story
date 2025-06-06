@@ -2,7 +2,7 @@
 
 import { prisma } from '@/app/_lib/prisma';
 import { createClient } from '@/app/_lib/supabase/server';
-import { PostingStrategy, ScheduleStatus } from '@prisma/client';
+import { PostingStrategy, PostingScope, ScheduleStatus } from '@prisma/client';
 import { RRule } from 'rrule';
 import { revalidatePath } from 'next/cache';
 import { postToInstagramStories } from '@/app/_services/InstagramService';
@@ -11,6 +11,8 @@ import { postToInstagramStories } from '@/app/_services/InstagramService';
 export async function createSchedule(formData: {
   name: string;
   strategy: PostingStrategy;
+  scope: PostingScope;
+  selectedPostIds?: string[];
   rrule?: string;
   timezone?: string;
 }) {
@@ -38,11 +40,26 @@ export async function createSchedule(formData: {
         userId: user.id,
         name: formData.name,
         strategy: formData.strategy,
+        scope: formData.scope,
         rrule: formData.rrule,
         timezone: formData.timezone || 'Asia/Tokyo',
         nextRun,
       },
     });
+
+    // スケジュールでSELECTEDが選択された場合、選択されたPostを保存
+    if (
+      formData.scope === PostingScope.SELECTED &&
+      formData.selectedPostIds &&
+      formData.selectedPostIds.length > 0
+    ) {
+      await prisma.schedulePost.createMany({
+        data: formData.selectedPostIds.map((postId) => ({
+          scheduleId: schedule.id,
+          postId,
+        })),
+      });
+    }
 
     revalidatePath('/schedules');
     return { success: true, schedule };
@@ -113,6 +130,35 @@ export async function getSchedules() {
     return schedules;
   } catch (error) {
     console.error('スケジュール取得エラー:', error);
+    return [];
+  }
+}
+
+// Post一覧を取得
+export async function getPosts() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: { userId: user.id },
+      include: {
+        images: {
+          orderBy: { order: 'asc' },
+        },
+      },
+      orderBy: { order: 'asc' },
+    });
+
+    return posts;
+  } catch (error) {
+    console.error('Post取得エラー:', error);
     return [];
   }
 }

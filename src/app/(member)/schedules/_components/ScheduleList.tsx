@@ -6,10 +6,23 @@ import { Button } from '@/app/_components/ui/button';
 import { Badge } from '@/app/_components/ui/badge';
 import { Play, Pause, Settings, Trash2 } from 'lucide-react';
 import { getSchedules } from '../_actions/schedules';
-import { Schedule, ScheduleEntry, Post, PostImage, PostingStrategy } from '@prisma/client';
+import {
+  Schedule,
+  ScheduleEntry,
+  Post,
+  PostImage,
+  PostingStrategy,
+  PostingScope,
+  SchedulePost,
+} from '@prisma/client';
 
 type ScheduleWithRelations = Schedule & {
   entries: (ScheduleEntry & {
+    post: Post & {
+      images: PostImage[];
+    };
+  })[];
+  selectedPosts: (SchedulePost & {
     post: Post & {
       images: PostImage[];
     };
@@ -44,8 +57,17 @@ export function ScheduleList() {
         return '新しい順';
       case PostingStrategy.OLDEST_FIRST:
         return '古い順';
-      case PostingStrategy.MANUAL:
-        return '手動選択';
+      default:
+        return '不明';
+    }
+  };
+
+  const getScopeLabel = (scope: PostingScope) => {
+    switch (scope) {
+      case PostingScope.ALL:
+        return '全てのPost';
+      case PostingScope.SELECTED:
+        return '選択されたPost';
       default:
         return '不明';
     }

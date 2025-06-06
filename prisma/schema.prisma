@@ -35,6 +35,7 @@ model Post {
   images         PostImage[]
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   scheduleEntries ScheduleEntry[]
+  schedulePosts  SchedulePost[] // スケジュールで選択されたPost
 
   @@map("posts")
 }
@@ -69,7 +70,8 @@ model Schedule {
   id        String          @id @default(cuid())
   userId    String          @map("user_id")
   name      String          // 例: "朝9時ランダム投稿", "毎週水曜夜投稿"
-  strategy  PostingStrategy // RANDOM / NEWEST_FIRST / MANUAL
+  strategy  PostingStrategy // RANDOM / NEWEST_FIRST / OLDEST_FIRST
+  scope     PostingScope    // ALL / SELECTED
   rrule     String?         // RFC5545形式: "RRULE:FREQ=DAILY;BYHOUR=9" など
   timezone  String          @default("Asia/Tokyo")
   nextRun   DateTime?       @map("next_run") // 次回実行予定時刻（ジョブキュー用）
@@ -78,6 +80,7 @@ model Schedule {
   updatedAt DateTime        @updatedAt @map("updated_at")
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   entries   ScheduleEntry[]
+  selectedPosts SchedulePost[] // 選択されたPost（scopeがSELECTEDの場合のみ使用）
 
   @@map("schedules")
 }
@@ -102,12 +105,30 @@ model ScheduleEntry {
   @@map("schedule_entries")
 }
 
+// スケジュールに含める選択されたPost
+model SchedulePost {
+  id         String   @id @default(cuid())
+  scheduleId String   @map("schedule_id")
+  postId     String   @map("post_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([scheduleId, postId])
+  @@map("schedule_posts")
+}
+
 // 投稿戦略の種類
 enum PostingStrategy {
   RANDOM       // ランダムに選択
   NEWEST_FIRST // 新しいものから順番
   OLDEST_FIRST // 古いものから順番
-  MANUAL       // 手動で選択
+}
+
+// 投稿対象の範囲
+enum PostingScope {
+  ALL      // 全てのPost
+  SELECTED // 選択されたPost
 }
 
 // スケジュールエントリーの状態
