@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/_components/ui/c
 import { Button } from '@/app/_components/ui/button';
 import { Badge } from '@/app/_components/ui/badge';
 import { Play, Pause, Settings, Trash2 } from 'lucide-react';
-import { getSchedules } from '../_actions/schedules';
+import { getSchedules, toggleScheduleActive } from '../_actions/schedules';
+import { EditScheduleDialog } from './EditScheduleDialog';
+import { DeleteScheduleDialog } from './DeleteScheduleDialog';
 import {
   Schedule,
   ScheduleEntry,
@@ -32,6 +34,9 @@ type ScheduleWithRelations = Schedule & {
 export function ScheduleList() {
   const [schedules, setSchedules] = useState<ScheduleWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editSchedule, setEditSchedule] = useState<ScheduleWithRelations | null>(null);
+  const [deleteSchedule, setDeleteSchedule] = useState<{ id: string; name: string } | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const loadSchedules = async () => {
     setLoading(true);
@@ -42,6 +47,23 @@ export function ScheduleList() {
       console.error('スケジュール取得エラー:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleActive = async (scheduleId: string) => {
+    setActionLoading(scheduleId);
+    try {
+      const result = await toggleScheduleActive(scheduleId);
+      if (result.success) {
+        await loadSchedules(); // データを再読み込み
+      } else {
+        alert(result.error || '切り替えに失敗しました');
+      }
+    } catch (error) {
+      console.error('切り替えエラー:', error);
+      alert('切り替えに失敗しました');
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -151,21 +173,30 @@ export function ScheduleList() {
                   <Badge variant={schedule.isActive ? 'default' : 'secondary'}>
                     {schedule.isActive ? '有効' : '無効'}
                   </Badge>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => setEditSchedule(schedule)}>
                     <Settings className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     className={schedule.isActive ? '' : 'text-green-600'}
+                    onClick={() => handleToggleActive(schedule.id)}
+                    disabled={actionLoading === schedule.id}
                   >
-                    {schedule.isActive ? (
+                    {actionLoading === schedule.id ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : schedule.isActive ? (
                       <Pause className="h-4 w-4" />
                     ) : (
                       <Play className="h-4 w-4" />
                     )}
                   </Button>
-                  <Button variant="outline" size="sm" className="text-red-600">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600"
+                    onClick={() => setDeleteSchedule({ id: schedule.id, name: schedule.name })}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -273,6 +304,22 @@ export function ScheduleList() {
           </Card>
         ))
       )}
+
+      {/* 編集ダイアログ */}
+      <EditScheduleDialog
+        schedule={editSchedule}
+        open={!!editSchedule}
+        onOpenChange={(open) => !open && setEditSchedule(null)}
+        onSuccess={loadSchedules}
+      />
+
+      {/* 削除確認ダイアログ */}
+      <DeleteScheduleDialog
+        schedule={deleteSchedule}
+        open={!!deleteSchedule}
+        onOpenChange={(open) => !open && setDeleteSchedule(null)}
+        onSuccess={loadSchedules}
+      />
     </div>
   );
 }

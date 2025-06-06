@@ -292,3 +292,195 @@ export async function postImmediately(postId: string) {
     return { success: false, error: '投稿に失敗しました' };
   }
 }
+
+// スケジュールの有効/無効切り替え
+export async function toggleScheduleActive(scheduleId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('認証が必要です');
+  }
+
+  try {
+    // 現在のスケジュールを取得
+    const schedule = await prisma.schedule.findUnique({
+      where: {
+        id: scheduleId,
+        userId: user.id,
+      },
+    });
+
+    if (!schedule) {
+      return { success: false, error: 'スケジュールが見つかりません' };
+    }
+
+    // 有効/無効を切り替え
+    const updatedSchedule = await prisma.schedule.update({
+      where: { id: scheduleId },
+      data: {
+        isActive: !schedule.isActive,
+        // 有効にする場合、次回実行時刻を再計算
+        nextRun:
+          !schedule.isActive && schedule.rrule
+            ? (() => {
+                try {
+                  const rule = RRule.fromString(schedule.rrule);
+                  return rule.after(new Date());
+                } catch {
+                  return null;
+                }
+              })()
+            : schedule.isActive
+              ? null
+              : schedule.nextRun,
+      },
+    });
+
+    revalidatePath('/schedules');
+    return {
+      success: true,
+      message: updatedSchedule.isActive
+        ? 'スケジュールを有効にしました'
+        : 'スケジュールを無効にしました',
+    };
+  } catch (error) {
+    console.error('スケジュール切り替えエラー:', error);
+    return { success: false, error: 'スケジュールの切り替えに失敗しました' };
+  }
+}
+
+// スケジュールの削除
+export async function deleteSchedule(scheduleId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('認証が必要です');
+  }
+
+  try {
+    // ユーザーのスケジュールかチェック
+    const schedule = await prisma.schedule.findUnique({
+      where: {
+        id: scheduleId,
+        userId: user.id,
+      },
+    });
+
+    if (!schedule) {
+      return { success: false, error: 'スケジュールが見つかりません' };
+    }
+
+    // 関連するScheduleEntryは外部キー制約でCascadeDeleteされる
+    await prisma.schedule.delete({
+      where: { id: scheduleId },
+    });
+
+    revalidatePath('/schedules');
+    return { success: true, message: 'スケジュールを削除しました' };
+  } catch (error) {
+    console.error('スケジュール削除エラー:', error);
+    return { success: false, error: 'スケジュールの削除に失敗しました' };
+  }
+}
+
+// スケジュールの更新
+export async function updateSchedule(
+  scheduleId: string,
+  formData: {
+    name?: string;
+    strategy?: PostingStrategy;
+    scope?: PostingScope;
+    selectedPostIds?: string[];
+    rrule?: string;
+    timezone?: string;
+    isActive?: boolean;
+  }
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('認証が必要です');
+  }
+
+  try {
+    // ユーザーのスケジュールかチェック
+    const existingSchedule = await prisma.schedule.findUnique({
+      where: {
+        id: scheduleId,
+        userId: user.id,
+      },
+    });
+
+    if (!existingSchedule) {
+      return { success: false, error: 'スケジュールが見つかりません' };
+    }
+
+    // 次回実行時刻を計算
+    let nextRun: Date | null = existingSchedule.nextRun;
+    if (formData.rrule !== undefined) {
+      if (formData.rrule) {
+        try {
+          const rule = RRule.fromString(formData.rrule);
+          const now = new Date();
+          nextRun = rule.after(now);
+        } catch {
+          nextRun = null;
+        }
+      } else {
+        nextRun = null;
+      }
+    }
+
+    const updatedSchedule = await prisma.schedule.update({
+      where: { id: scheduleId },
+      data: {
+        ...(formData.name !== undefined && { name: formData.name }),
+        ...(formData.strategy !== undefined && { strategy: formData.strategy }),
+        ...(formData.scope !== undefined && { scope: formData.scope }),
+        ...(formData.rrule !== undefined && { rrule: formData.rrule }),
+        ...(formData.timezone !== undefined && { timezone: formData.timezone }),
+        ...(formData.isActive !== undefined && { isActive: formData.isActive }),
+        nextRun,
+      },
+    });
+
+    // スケジュールの投稿対象設定を更新
+    if (formData.scope !== undefined) {
+      if (formData.scope === PostingScope.SELECTED && formData.selectedPostIds) {
+        // SELECTEDの場合：既存の選択を削除して新しい選択を追加
+        await prisma.schedulePost.deleteMany({
+          where: { scheduleId },
+        });
+
+        if (formData.selectedPostIds.length > 0) {
+          await prisma.schedulePost.createMany({
+            data: formData.selectedPostIds.map((postId) => ({
+              scheduleId,
+              postId,
+            })),
+          });
+        }
+      } else if (formData.scope === PostingScope.ALL) {
+        // ALLの場合：既存のSchedulePostをすべて削除
+        await prisma.schedulePost.deleteMany({
+          where: { scheduleId },
+        });
+      }
+    }
+
+    revalidatePath('/schedules');
+    return { success: true, schedule: updatedSchedule };
+  } catch (error) {
+    console.error('スケジュール更新エラー:', error);
+    return { success: false, error: 'スケジュールの更新に失敗しました' };
+  }
+}
