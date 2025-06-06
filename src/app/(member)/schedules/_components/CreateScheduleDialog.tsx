@@ -47,8 +47,8 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
     name: '',
     strategy: PostingStrategy.RANDOM,
     scope: PostingScope.ALL,
-    frequency: 'every10min',
-    hour: 9,
+    frequency: 'daily',
+    hour: 17,
     minute: 0,
     weekday: 1, // 月曜日
   });
@@ -139,8 +139,8 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
         <DialogHeader>
           <DialogTitle>新しいスケジュールを作成</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-6">
+          <div className="space-y-2">
             <Label htmlFor="name">スケジュール名</Label>
             <Input
               id="name"
@@ -151,8 +151,21 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
             />
           </div>
 
-          <div>
-            <Label htmlFor="strategy">投稿戦略</Label>
+          <div className="space-y-2">
+            <Label htmlFor="scope">投稿対象</Label>
+            <select
+              id="scope"
+              value={formData.scope}
+              onChange={(e) => setFormData({ ...formData, scope: e.target.value as PostingScope })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={PostingScope.ALL}>アップロードした画像全て</option>
+              <option value={PostingScope.SELECTED}>選択した画像</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="strategy">投稿の順序</Label>
             <select
               id="strategy"
               value={formData.strategy}
@@ -167,23 +180,10 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
             </select>
           </div>
 
-          <div>
-            <Label htmlFor="scope">投稿対象</Label>
-            <select
-              id="scope"
-              value={formData.scope}
-              onChange={(e) => setFormData({ ...formData, scope: e.target.value as PostingScope })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value={PostingScope.ALL}>全てのPost</option>
-              <option value={PostingScope.SELECTED}>選択されたPost</option>
-            </select>
-          </div>
-
           {formData.scope === PostingScope.SELECTED && (
-            <div>
+            <div className="space-y-2">
               <Label>投稿を選択 ({selectedPostIds.size}件選択中)</Label>
-              <div className="mt-2 grid grid-cols-4 gap-2 max-h-64 overflow-y-auto border rounded-md p-2">
+              <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto border rounded-md p-2">
                 {posts.map((post) => (
                   <div
                     key={post.id}
@@ -217,7 +217,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
             </div>
           )}
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="frequency">頻度</Label>
             <select
               id="frequency"
@@ -233,7 +233,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
           </div>
 
           {formData.frequency === 'weekly' && (
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="weekday">曜日</Label>
               <select
                 id="weekday"
@@ -253,7 +253,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
           )}
 
           {formData.frequency === 'hourly' && (
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="minute">分</Label>
               <Input
                 id="minute"
@@ -269,7 +269,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
 
           {(formData.frequency === 'daily' || formData.frequency === 'weekly') && (
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="hour">時</Label>
                 <Input
                   id="hour"
@@ -280,7 +280,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
                   onChange={(e) => setFormData({ ...formData, hour: parseInt(e.target.value) })}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="minute">分</Label>
                 <Input
                   id="minute"
