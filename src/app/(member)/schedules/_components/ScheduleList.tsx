@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/_components/ui/card';
 import { Button } from '@/app/_components/ui/button';
 import { Badge } from '@/app/_components/ui/badge';
@@ -12,7 +13,6 @@ import {
   Post,
   PostImage,
   PostingStrategy,
-  PostingScope,
   SchedulePost,
 } from '@prisma/client';
 
@@ -202,10 +202,12 @@ export function ScheduleList() {
                       {schedule.entries.slice(0, 3).map((entry) => (
                         <div key={entry.id} className="flex items-center space-x-2">
                           {entry.post.images.length > 0 && (
-                            <img
+                            <Image
                               src={entry.post.images[0].imageUrl}
                               alt="投稿画像"
-                              className="w-8 h-8 object-cover rounded"
+                              width={32}
+                              height={32}
+                              className="object-cover rounded"
                             />
                           )}
                           <div className="flex-1 min-w-0">

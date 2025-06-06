@@ -97,10 +97,6 @@ function selectPostByStrategy(posts: PostWithImages[], strategy: PostingStrategy
     case PostingStrategy.OLDEST_FIRST:
       return postsWithImages[postsWithImages.length - 1];
 
-    case PostingStrategy.MANUAL:
-      // 手動選択の場合は自動選択しない
-      return null;
-
     default:
       return postsWithImages[0];
   }

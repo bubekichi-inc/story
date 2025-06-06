@@ -123,6 +123,15 @@ export async function getSchedules() {
           orderBy: { scheduledAt: 'desc' },
           take: 5, // 最新5件
         },
+        selectedPosts: {
+          include: {
+            post: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
