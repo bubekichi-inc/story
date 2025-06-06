@@ -117,49 +117,6 @@ export async function getSchedules() {
   }
 }
 
-// カレンダー用のスケジュールエントリー取得
-export async function getScheduleEntriesForCalendar(startDate: Date, endDate: Date) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
-
-  try {
-    const entries = await prisma.scheduleEntry.findMany({
-      where: {
-        scheduledAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-        post: {
-          userId: user.id,
-        },
-      },
-      include: {
-        post: {
-          include: {
-            images: {
-              orderBy: { order: 'asc' },
-              take: 1,
-            },
-          },
-        },
-        schedule: true,
-      },
-      orderBy: { scheduledAt: 'asc' },
-    });
-
-    return entries;
-  } catch (error) {
-    console.error('カレンダー用エントリー取得エラー:', error);
-    return [];
-  }
-}
-
 // スケジュールエントリーのキャンセル
 export async function cancelScheduleEntry(entryId: string) {
   const supabase = await createClient();

@@ -1,7 +1,6 @@
 import { Button } from '@/app/_components/ui/button';
 import { Plus } from 'lucide-react';
 import { CreateScheduleDialog } from './_components/CreateScheduleDialog';
-import { ScheduleCalendar } from './_components/ScheduleCalendar';
 import { ScheduleList } from './_components/ScheduleList';
 
 export default function SchedulesPage() {
@@ -21,13 +20,7 @@ export default function SchedulesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* カレンダー表示 */}
-        <div>
-          <ScheduleCalendar />
-        </div>
-
-        {/* スケジュール一覧 */}
+      <div className="">
         <div>
           <ScheduleList />
         </div>
