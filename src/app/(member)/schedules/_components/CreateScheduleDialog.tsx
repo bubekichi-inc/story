@@ -41,6 +41,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
     scope: PostingScope;
     frequency: string;
     hour: number;
+    minute: number;
     weekday: number;
   }>({
     name: '',
@@ -48,6 +49,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
     scope: PostingScope.ALL,
     frequency: 'every10min',
     hour: 9,
+    minute: 0,
     weekday: 1, // 月曜日
   });
 
@@ -94,11 +96,11 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
       if (formData.frequency === 'every10min') {
         rruleString = `RRULE:FREQ=MINUTELY;INTERVAL=10`;
       } else if (formData.frequency === 'hourly') {
-        rruleString = `RRULE:FREQ=HOURLY`;
+        rruleString = `RRULE:FREQ=HOURLY;BYMINUTE=${formData.minute}`;
       } else if (formData.frequency === 'daily') {
-        rruleString = `RRULE:FREQ=DAILY;BYHOUR=${formData.hour}`;
+        rruleString = `RRULE:FREQ=DAILY;BYHOUR=${formData.hour};BYMINUTE=${formData.minute}`;
       } else if (formData.frequency === 'weekly') {
-        rruleString = `RRULE:FREQ=WEEKLY;BYDAY=${['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][formData.weekday]};BYHOUR=${formData.hour}`;
+        rruleString = `RRULE:FREQ=WEEKLY;BYDAY=${['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][formData.weekday]};BYHOUR=${formData.hour};BYMINUTE=${formData.minute}`;
       }
 
       const result = await createSchedule({
@@ -118,6 +120,7 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
           scope: PostingScope.ALL,
           frequency: 'every10min',
           hour: 9,
+          minute: 0,
           weekday: 1,
         });
         setSelectedPostIds(new Set());
@@ -249,19 +252,45 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
             </div>
           )}
 
-          {(formData.frequency === 'daily' ||
-            formData.frequency === 'weekly' ||
-            formData.frequency === 'hourly') && (
+          {formData.frequency === 'hourly' && (
             <div>
-              <Label htmlFor="hour">投稿時刻</Label>
+              <Label htmlFor="minute">分</Label>
               <Input
-                id="hour"
+                id="minute"
                 type="number"
                 min="0"
-                max="23"
-                value={formData.hour}
-                onChange={(e) => setFormData({ ...formData, hour: parseInt(e.target.value) })}
+                max="59"
+                value={formData.minute}
+                onChange={(e) => setFormData({ ...formData, minute: parseInt(e.target.value) })}
+                placeholder="毎時何分に実行するか"
               />
+            </div>
+          )}
+
+          {(formData.frequency === 'daily' || formData.frequency === 'weekly') && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="hour">時</Label>
+                <Input
+                  id="hour"
+                  type="number"
+                  min="0"
+                  max="23"
+                  value={formData.hour}
+                  onChange={(e) => setFormData({ ...formData, hour: parseInt(e.target.value) })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="minute">分</Label>
+                <Input
+                  id="minute"
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={formData.minute}
+                  onChange={(e) => setFormData({ ...formData, minute: parseInt(e.target.value) })}
+                />
+              </div>
             </div>
           )}
 

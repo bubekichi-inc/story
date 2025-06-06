@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/schedule/process",
-      "schedule": "*/10 * * * *"
+      "schedule": "* * * * *"
     },
     {
       "path": "/api/schedule/retry",

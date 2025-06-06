@@ -125,19 +125,19 @@ function calculateNextRun(rruleString: string | null): Date | null {
 
 /**
  * 待機中のスケジュールエントリーをInstagramに投稿する
- * Vercelのcronで10分間隔で実行される
+ * Vercelのcronで1分間隔で実行される
  */
 export async function processScheduleEntries() {
   try {
     const now = new Date();
-    const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
+    const oneMinuteFromNow = new Date(now.getTime() + 1 * 60 * 1000);
 
-    // 投稿予定時刻が現在から10分以内の待機中エントリーを取得
+    // 投稿予定時刻が現在から1分以内の待機中エントリーを取得
     const entries = await prisma.scheduleEntry.findMany({
       where: {
         status: ScheduleStatus.PENDING,
         scheduledAt: {
-          lte: tenMinutesFromNow,
+          lte: oneMinuteFromNow,
         },
       },
       include: {
@@ -152,7 +152,7 @@ export async function processScheduleEntries() {
         schedule: true,
       },
       orderBy: { scheduledAt: 'asc' },
-      take: 20, // 10分間隔なので一度に最大20件まで処理
+      take: 5, // 1分間隔なので一度に最大5件まで処理
     });
 
     for (const entry of entries) {
