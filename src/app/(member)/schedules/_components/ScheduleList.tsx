@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/_components/ui/card';
 import { Button } from '@/app/_components/ui/button';
 import { Badge } from '@/app/_components/ui/badge';
 import { Play, Pause, Settings, Trash2 } from 'lucide-react';
 import { getSchedules, toggleScheduleActive } from '../_actions/schedules';
-import { EditScheduleDialog } from './EditScheduleDialog';
+import { ScheduleFormDialog } from './ScheduleFormDialog';
 import { DeleteScheduleDialog } from './DeleteScheduleDialog';
 import {
   Schedule,
@@ -31,12 +31,16 @@ type ScheduleWithRelations = Schedule & {
   })[];
 };
 
-export function ScheduleList() {
+export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, ref) => {
   const [schedules, setSchedules] = useState<ScheduleWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [editSchedule, setEditSchedule] = useState<ScheduleWithRelations | null>(null);
   const [deleteSchedule, setDeleteSchedule] = useState<{ id: string; name: string } | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    loadSchedules,
+  }));
 
   const loadSchedules = async () => {
     setLoading(true);
@@ -306,11 +310,12 @@ export function ScheduleList() {
       )}
 
       {/* 編集ダイアログ */}
-      <EditScheduleDialog
+      <ScheduleFormDialog
         schedule={editSchedule}
         open={!!editSchedule}
         onOpenChange={(open) => !open && setEditSchedule(null)}
         onSuccess={loadSchedules}
+        mode="edit"
       />
 
       {/* 削除確認ダイアログ */}
@@ -322,4 +327,6 @@ export function ScheduleList() {
       />
     </div>
   );
-}
+});
+
+ScheduleList.displayName = 'ScheduleList';
