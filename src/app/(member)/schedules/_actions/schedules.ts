@@ -6,6 +6,7 @@ import { PostingStrategy, PostingScope, ScheduleStatus } from '@prisma/client';
 import { RRule } from 'rrule';
 import { revalidatePath } from 'next/cache';
 import { postToInstagramStories } from '@/app/_services/InstagramService';
+import { getScheduleStats } from '@/app/_services/ScheduleService';
 
 // スケジュール作成
 export async function createSchedule(formData: {
@@ -15,6 +16,7 @@ export async function createSchedule(formData: {
   selectedPostIds?: string[];
   rrule?: string;
   timezone?: string;
+  autoReset?: boolean;
 }) {
   const supabase = await createClient();
   const {
@@ -44,6 +46,7 @@ export async function createSchedule(formData: {
         rrule: formData.rrule,
         timezone: formData.timezone || 'Asia/Tokyo',
         nextRun,
+        autoReset: formData.autoReset ?? true,
       },
     });
 
@@ -400,6 +403,7 @@ export async function updateSchedule(
     rrule?: string;
     timezone?: string;
     isActive?: boolean;
+    autoReset?: boolean;
   }
 ) {
   const supabase = await createClient();
@@ -449,6 +453,7 @@ export async function updateSchedule(
         ...(formData.rrule !== undefined && { rrule: formData.rrule }),
         ...(formData.timezone !== undefined && { timezone: formData.timezone }),
         ...(formData.isActive !== undefined && { isActive: formData.isActive }),
+        ...(formData.autoReset !== undefined && { autoReset: formData.autoReset }),
         nextRun,
       },
     });
@@ -482,5 +487,86 @@ export async function updateSchedule(
   } catch (error) {
     console.error('スケジュール更新エラー:', error);
     return { success: false, error: 'スケジュールの更新に失敗しました' };
+  }
+}
+
+// スケジュール統計情報の取得
+export async function getScheduleStatistics(scheduleId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('認証が必要です');
+  }
+
+  try {
+    // ユーザーのスケジュールかどうかを確認
+    const schedule = await prisma.schedule.findFirst({
+      where: {
+        id: scheduleId,
+        userId: user.id,
+      },
+    });
+
+    if (!schedule) {
+      throw new Error('スケジュールが見つかりません');
+    }
+
+    const stats = await getScheduleStats(scheduleId);
+    return { success: true, stats };
+  } catch (error) {
+    console.error('スケジュール統計取得エラー:', error);
+    return { success: false, error: 'スケジュール統計の取得に失敗しました' };
+  }
+}
+
+// スケジュールサイクルの手動リセット
+export async function resetScheduleCycle(scheduleId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('認証が必要です');
+  }
+
+  try {
+    // ユーザーのスケジュールかどうかを確認
+    const schedule = await prisma.schedule.findFirst({
+      where: {
+        id: scheduleId,
+        userId: user.id,
+      },
+    });
+
+    if (!schedule) {
+      throw new Error('スケジュールが見つかりません');
+    }
+
+    // 投稿済みエントリーを削除
+    await prisma.scheduleEntry.deleteMany({
+      where: {
+        scheduleId: scheduleId,
+        status: ScheduleStatus.POSTED,
+      },
+    });
+
+    // リセット情報を更新
+    await prisma.schedule.update({
+      where: { id: scheduleId },
+      data: {
+        resetCount: { increment: 1 },
+        lastResetAt: new Date(),
+      },
+    });
+
+    revalidatePath('/schedules');
+    return { success: true };
+  } catch (error) {
+    console.error('スケジュールリセットエラー:', error);
+    return { success: false, error: 'スケジュールのリセットに失敗しました' };
   }
 }

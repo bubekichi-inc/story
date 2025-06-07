@@ -5,10 +5,12 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/_components/ui/card';
 import { Button } from '@/app/_components/ui/button';
 import { Badge } from '@/app/_components/ui/badge';
-import { Play, Pause, Settings, Trash2 } from 'lucide-react';
+import { Progress } from '@/app/_components/ui/progress';
+import { Play, Pause, Settings, Trash2, BarChart3 } from 'lucide-react';
 import { getSchedules, toggleScheduleActive } from '../_actions/schedules';
 import { ScheduleFormDialog } from './ScheduleFormDialog';
 import { DeleteScheduleDialog } from './DeleteScheduleDialog';
+import { ScheduleStatsDialog } from './ScheduleStatsDialog';
 import {
   Schedule,
   ScheduleEntry,
@@ -36,6 +38,7 @@ export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, re
   const [loading, setLoading] = useState(true);
   const [editSchedule, setEditSchedule] = useState<ScheduleWithRelations | null>(null);
   const [deleteSchedule, setDeleteSchedule] = useState<{ id: string; name: string } | null>(null);
+  const [statsSchedule, setStatsSchedule] = useState<{ id: string; name: string } | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -177,6 +180,13 @@ export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, re
                   <Badge variant={schedule.isActive ? 'default' : 'secondary'}>
                     {schedule.isActive ? '有効' : '無効'}
                   </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStatsSchedule({ id: schedule.id, name: schedule.name })}
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => setEditSchedule(schedule)}>
                     <Settings className="h-4 w-4" />
                   </Button>
@@ -223,6 +233,14 @@ export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, re
                       <span className="text-gray-500">次回実行:</span>
                       <span className="ml-2">{formatNextRun(schedule.nextRun)}</span>
                     </div>
+                    {(schedule.strategy === 'RANDOM' ||
+                      schedule.strategy === 'NEWEST_FIRST' ||
+                      schedule.strategy === 'OLDEST_FIRST') && (
+                      <div>
+                        <span className="text-gray-500">サイクル:</span>
+                        <span className="ml-2">{schedule.resetCount + 1}回目</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -280,6 +298,28 @@ export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, re
                       ))}
                     </div>
                   )}
+
+                  {/* サイクル進行状況 */}
+                  {(schedule.strategy === 'RANDOM' ||
+                    schedule.strategy === 'NEWEST_FIRST' ||
+                    schedule.strategy === 'OLDEST_FIRST') && (
+                    <div className="mt-3">
+                      <div className="text-xs text-gray-500 mb-1">
+                        サイクル進行状況 ({schedule.selectedPosts.length}投稿済み)
+                      </div>
+                      <Progress
+                        value={
+                          schedule.selectedPosts.length > 0
+                            ? Math.min((schedule.selectedPosts.length / 10) * 100, 100)
+                            : 0
+                        }
+                        className="h-2"
+                      />
+                      <div className="text-xs text-gray-400 mt-1">
+                        {schedule.autoReset ? '自動リセット有効' : '手動リセットのみ'}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -324,6 +364,15 @@ export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, re
         open={!!deleteSchedule}
         onOpenChange={(open) => !open && setDeleteSchedule(null)}
         onSuccess={loadSchedules}
+      />
+
+      {/* 統計ダイアログ */}
+      <ScheduleStatsDialog
+        scheduleId={statsSchedule?.id || null}
+        scheduleName={statsSchedule?.name || ''}
+        open={!!statsSchedule}
+        onOpenChange={(open) => !open && setStatsSchedule(null)}
+        onScheduleUpdate={loadSchedules}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import {
 import { Button } from '@/app/_components/ui/button';
 import { Input } from '@/app/_components/ui/input';
 import { Label } from '@/app/_components/ui/label';
+import { Checkbox } from '@/app/_components/ui/checkbox';
 import {
   PostingStrategy,
   PostingScope,
@@ -67,6 +68,7 @@ export function ScheduleFormDialog({
     minute: '0',
     dayOfWeek: 'MO' as 'SU' | 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA',
     interval: '10',
+    autoReset: true,
   });
 
   // 制御されたダイアログかどうかを判定
@@ -100,6 +102,7 @@ export function ScheduleFormDialog({
             | 'FR'
             | 'SA') || 'MO',
         interval: schedule.rrule?.match(/INTERVAL=(\d+)/)?.[1] || '10',
+        autoReset: schedule.autoReset,
       });
     } else if (mode === 'create') {
       // 新規作成時はフォームをリセット
@@ -113,6 +116,7 @@ export function ScheduleFormDialog({
         minute: '0',
         dayOfWeek: 'MO',
         interval: '10',
+        autoReset: true,
       });
     }
   }, [schedule, mode]);
@@ -161,6 +165,7 @@ export function ScheduleFormDialog({
             formData.scope === PostingScope.SELECTED ? formData.selectedPostIds : undefined,
           rrule,
           timezone: 'Asia/Tokyo',
+          autoReset: formData.autoReset,
         });
 
         if (result.success) {
@@ -179,6 +184,7 @@ export function ScheduleFormDialog({
             formData.scope === PostingScope.SELECTED ? formData.selectedPostIds : undefined,
           rrule,
           timezone: 'Asia/Tokyo',
+          autoReset: formData.autoReset,
         });
 
         if (result.success) {
@@ -244,6 +250,23 @@ export function ScheduleFormDialog({
             ))}
           </div>
         </div>
+
+        {(formData.strategy === PostingStrategy.RANDOM ||
+          formData.strategy === PostingStrategy.NEWEST_FIRST ||
+          formData.strategy === PostingStrategy.OLDEST_FIRST) && (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="autoReset"
+              checked={formData.autoReset}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, autoReset: checked === true }))
+              }
+            />
+            <Label htmlFor="autoReset" className="text-sm font-normal">
+              全ての投稿完了後に自動的にサイクルをリセットする
+            </Label>
+          </div>
+        )}
 
         <div>
           <Label>投稿対象</Label>

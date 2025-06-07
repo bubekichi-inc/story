@@ -42,7 +42,11 @@ export async function generateScheduleEntries() {
     for (const schedule of schedules) {
       try {
         // 投稿戦略に基づいて投稿を選択
-        const selectedPost = selectPostByStrategy(schedule.user.posts, schedule.strategy);
+        const selectedPost = await selectPostByStrategy(
+          schedule.user.posts,
+          schedule.strategy,
+          schedule.id
+        );
 
         if (selectedPost) {
           // スケジュールエントリーを作成
@@ -78,28 +82,174 @@ export async function generateScheduleEntries() {
 }
 
 /**
- * 投稿戦略に基づいて投稿を選択
+ * 投稿戦略に基づいて投稿を選択（自動循環機能付き）
  */
-function selectPostByStrategy(posts: PostWithImages[], strategy: PostingStrategy) {
+async function selectPostByStrategy(
+  posts: PostWithImages[],
+  strategy: PostingStrategy,
+  scheduleId: string
+): Promise<PostWithImages | null> {
   if (posts.length === 0) return null;
 
   // 画像を持つ投稿のみを対象とする
   const postsWithImages = posts.filter((post) => post.images.length > 0);
   if (postsWithImages.length === 0) return null;
 
+  // スケジュール設定を取得
+  const schedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+  });
+
+  if (!schedule) return null;
+
   switch (strategy) {
     case PostingStrategy.RANDOM:
-      return postsWithImages[Math.floor(Math.random() * postsWithImages.length)];
+      return await selectRandomPost(postsWithImages, scheduleId, schedule.autoReset);
 
     case PostingStrategy.NEWEST_FIRST:
-      return postsWithImages[0]; // 既にcreatedAt descでソート済み
+      return await selectNewestFirstPost(postsWithImages, scheduleId, schedule.autoReset);
 
     case PostingStrategy.OLDEST_FIRST:
-      return postsWithImages[postsWithImages.length - 1];
+      return await selectOldestFirstPost(postsWithImages, scheduleId, schedule.autoReset);
 
     default:
       return postsWithImages[0];
   }
+}
+
+/**
+ * ランダム投稿選択（重複なし、自動循環機能付き）
+ */
+async function selectRandomPost(
+  posts: PostWithImages[],
+  scheduleId: string,
+  autoReset: boolean
+): Promise<PostWithImages | null> {
+  // 投稿済みのPostを取得
+  const postedPostIds = await prisma.scheduleEntry.findMany({
+    where: {
+      scheduleId: scheduleId,
+      status: ScheduleStatus.POSTED,
+    },
+    select: { postId: true },
+  });
+
+  const postedIds = postedPostIds.map((entry) => entry.postId);
+
+  // 未投稿のPostを取得
+  const unpostedPosts = posts.filter((post) => !postedIds.includes(post.id));
+
+  // 全て投稿済みの場合の処理
+  if (unpostedPosts.length === 0) {
+    if (autoReset) {
+      await resetScheduleCycle(scheduleId);
+      // リセット後は全てのPostが候補
+      return posts[Math.floor(Math.random() * posts.length)];
+    }
+    return null; // 自動リセットが無効の場合は投稿しない
+  }
+
+  // ランダム選択
+  return unpostedPosts[Math.floor(Math.random() * unpostedPosts.length)];
+}
+
+/**
+ * 新しい順投稿選択（重複なし、自動循環機能付き）
+ */
+async function selectNewestFirstPost(
+  posts: PostWithImages[],
+  scheduleId: string,
+  autoReset: boolean
+): Promise<PostWithImages | null> {
+  // 投稿済みのPostを取得
+  const postedPostIds = await prisma.scheduleEntry.findMany({
+    where: {
+      scheduleId: scheduleId,
+      status: ScheduleStatus.POSTED,
+    },
+    select: { postId: true },
+  });
+
+  const postedIds = postedPostIds.map((entry) => entry.postId);
+
+  // 未投稿のPostを新しい順で取得
+  const unpostedPosts = posts.filter((post) => !postedIds.includes(post.id));
+
+  // 全て投稿済みの場合の処理
+  if (unpostedPosts.length === 0) {
+    if (autoReset) {
+      await resetScheduleCycle(scheduleId);
+      // リセット後は最新のPostを選択
+      return posts[0];
+    }
+    return null;
+  }
+
+  // 最新のPostを選択
+  return unpostedPosts[0];
+}
+
+/**
+ * 古い順投稿選択（重複なし、自動循環機能付き）
+ */
+async function selectOldestFirstPost(
+  posts: PostWithImages[],
+  scheduleId: string,
+  autoReset: boolean
+): Promise<PostWithImages | null> {
+  // 投稿済みのPostを取得
+  const postedPostIds = await prisma.scheduleEntry.findMany({
+    where: {
+      scheduleId: scheduleId,
+      status: ScheduleStatus.POSTED,
+    },
+    select: { postId: true },
+  });
+
+  const postedIds = postedPostIds.map((entry) => entry.postId);
+
+  // 未投稿のPostを古い順で取得
+  const unpostedPosts = posts
+    .filter((post) => !postedIds.includes(post.id))
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+  // 全て投稿済みの場合の処理
+  if (unpostedPosts.length === 0) {
+    if (autoReset) {
+      await resetScheduleCycle(scheduleId);
+      // リセット後は最古のPostを選択
+      const sortedPosts = posts.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      return sortedPosts[0];
+    }
+    return null;
+  }
+
+  // 最古のPostを選択
+  return unpostedPosts[0];
+}
+
+/**
+ * スケジュールサイクルのリセット
+ */
+async function resetScheduleCycle(scheduleId: string) {
+  // 投稿済みエントリーを削除
+  await prisma.scheduleEntry.deleteMany({
+    where: {
+      scheduleId: scheduleId,
+      status: ScheduleStatus.POSTED,
+    },
+  });
+
+  // リセット情報を更新
+  await prisma.schedule.update({
+    where: { id: scheduleId },
+    data: {
+      resetCount: { increment: 1 },
+      lastResetAt: new Date(),
+    },
+  });
+
+  console.log(`スケジュール ${scheduleId} のサイクルをリセットしました`);
 }
 
 /**
@@ -251,4 +401,55 @@ export async function retryFailedEntries() {
   } catch (error) {
     console.error('失敗エントリーのリトライエラー:', error);
   }
+}
+
+/**
+ * スケジュールの統計情報を取得
+ */
+export async function getScheduleStats(scheduleId: string) {
+  const schedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+    include: {
+      user: {
+        include: {
+          posts: {
+            where: {
+              images: {
+                some: {},
+              },
+            },
+          },
+        },
+      },
+      entries: {
+        where: {
+          status: ScheduleStatus.POSTED,
+        },
+      },
+    },
+  });
+
+  if (!schedule) return null;
+
+  const totalPosts = schedule.user.posts.length;
+  const postedPosts = schedule.entries.length;
+  const remainingPosts = totalPosts - postedPosts;
+
+  // 現在のサイクルでの進捗率
+  const currentCycleProgress = totalPosts > 0 ? (postedPosts / totalPosts) * 100 : 0;
+
+  // 次回リセット予定（全投稿完了まであと何回投稿が必要か）
+  const postsUntilReset = remainingPosts;
+
+  return {
+    totalPosts,
+    postedPosts,
+    remainingPosts,
+    currentCycleProgress: Math.round(currentCycleProgress),
+    resetCount: schedule.resetCount,
+    lastResetAt: schedule.lastResetAt,
+    autoReset: schedule.autoReset,
+    postsUntilReset,
+    isCompleted: remainingPosts === 0,
+  };
 }

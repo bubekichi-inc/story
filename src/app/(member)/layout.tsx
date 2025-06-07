@@ -66,7 +66,7 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
                   className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
                 >
                   <Menu className="size-4" />
-                  <span>投稿一覧</span>
+                  <span>投稿コンテンツ</span>
                 </Link>
               </li>
               <li>

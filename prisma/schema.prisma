@@ -67,19 +67,22 @@ model Registration {
 
 // Instagramストーリー投稿のスケジュール管理
 model Schedule {
-  id        String          @id @default(cuid())
-  userId    String          @map("user_id")
-  name      String          // 例: "朝9時ランダム投稿", "毎週水曜夜投稿"
-  strategy  PostingStrategy // RANDOM / NEWEST_FIRST / OLDEST_FIRST
-  scope     PostingScope    // ALL / SELECTED
-  rrule     String?         // RFC5545形式: "RRULE:FREQ=DAILY;BYHOUR=9" など
-  timezone  String          @default("Asia/Tokyo")
-  nextRun   DateTime?       @map("next_run") // 次回実行予定時刻（ジョブキュー用）
-  isActive  Boolean         @default(true) @map("is_active")
-  createdAt DateTime        @default(now()) @map("created_at")
-  updatedAt DateTime        @updatedAt @map("updated_at")
-  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entries   ScheduleEntry[]
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  name        String          // 例: "朝9時ランダム投稿", "毎週水曜夜投稿"
+  strategy    PostingStrategy // RANDOM / NEWEST_FIRST / OLDEST_FIRST
+  scope       PostingScope    // ALL / SELECTED
+  rrule       String?         // RFC5545形式: "RRULE:FREQ=DAILY;BYHOUR=9" など
+  timezone    String          @default("Asia/Tokyo")
+  nextRun     DateTime?       @map("next_run") // 次回実行予定時刻（ジョブキュー用）
+  isActive    Boolean         @default(true) @map("is_active")
+  autoReset   Boolean         @default(true) @map("auto_reset") // 自動リセット有効
+  resetCount  Int             @default(0) @map("reset_count") // リセット回数
+  lastResetAt DateTime?       @map("last_reset_at") // 最後のリセット日時
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries     ScheduleEntry[]
   selectedPosts SchedulePost[] // 選択されたPost（scopeがSELECTEDの場合のみ使用）
 
   @@map("schedules")
