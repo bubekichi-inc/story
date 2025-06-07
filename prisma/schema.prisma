@@ -9,33 +9,30 @@ datasource db {
 }
 
 model User {
-  id        String     @id
-  email     String     @unique
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-
-  // Instagram連携情報
-  instagramAccessToken       String?   @map("instagram_access_token")
-  instagramBusinessAccountId String?   @map("instagram_business_account_id")
-  instagramTokenExpiresAt    DateTime? @map("instagram_token_expires_at")
-
-  posts     Post[]
-  schedules Schedule[]
+  id                         String     @id
+  email                      String     @unique
+  createdAt                  DateTime   @default(now()) @map("created_at")
+  updatedAt                  DateTime   @updatedAt @map("updated_at")
+  instagramAccessToken       String?    @map("instagram_access_token")
+  instagramBusinessAccountId String?    @map("instagram_business_account_id")
+  instagramTokenExpiresAt    DateTime?  @map("instagram_token_expires_at")
+  posts                      Post[]
+  schedules                  Schedule[]
 
   @@map("users")
 }
 
 model Post {
-  id             String          @id @default(cuid())
-  userId         String          @map("user_id")
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  order          Int             @default(0)
-  storyText      String?         @map("story_text") // Instagramストーリー用のテキスト
-  images         PostImage[]
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String          @id @default(cuid())
+  userId          String          @map("user_id")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  order           Int             @default(0)
+  storyText       String?         @map("story_text")
+  images          PostImage[]
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   scheduleEntries ScheduleEntry[]
-  schedulePosts  SchedulePost[] // スケジュールで選択されたPost
+  schedulePosts   SchedulePost[]
 
   @@map("posts")
 }
@@ -65,42 +62,40 @@ model Registration {
   @@map("registrations")
 }
 
-// Instagramストーリー投稿のスケジュール管理
 model Schedule {
-  id          String          @id @default(cuid())
-  userId      String          @map("user_id")
-  name        String          // 例: "朝9時ランダム投稿", "毎週水曜夜投稿"
-  strategy    PostingStrategy // RANDOM / NEWEST_FIRST / OLDEST_FIRST
-  scope       PostingScope    // ALL / SELECTED
-  rrule       String?         // RFC5545形式: "RRULE:FREQ=DAILY;BYHOUR=9" など
-  timezone    String          @default("Asia/Tokyo")
-  nextRun     DateTime?       @map("next_run") // 次回実行予定時刻（ジョブキュー用）
-  isActive    Boolean         @default(true) @map("is_active")
-  autoReset   Boolean         @default(true) @map("auto_reset") // 自動リセット有効
-  resetCount  Int             @default(0) @map("reset_count") // リセット回数
-  lastResetAt DateTime?       @map("last_reset_at") // 最後のリセット日時
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entries     ScheduleEntry[]
-  selectedPosts SchedulePost[] // 選択されたPost（scopeがSELECTEDの場合のみ使用）
+  id            String          @id @default(cuid())
+  userId        String          @map("user_id")
+  name          String
+  strategy      PostingStrategy
+  scope         PostingScope
+  rrule         String?
+  timezone      String          @default("Asia/Tokyo")
+  nextRun       DateTime?       @map("next_run")
+  isActive      Boolean         @default(true) @map("is_active")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  autoReset     Boolean         @default(true) @map("auto_reset")
+  lastResetAt   DateTime?       @map("last_reset_at")
+  resetCount    Int             @default(0) @map("reset_count")
+  entries       ScheduleEntry[]
+  selectedPosts SchedulePost[]
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("schedules")
 }
 
-// カレンダーに表示される個別の投稿予約
 model ScheduleEntry {
-  id          String         @id @default(cuid())
-  scheduleId  String?        @map("schedule_id") // nullの場合は単発投稿
-  postId      String         @map("post_id")
-  scheduledAt DateTime       @map("scheduled_at") // 投稿予定日時
-  status      ScheduleStatus @default(PENDING)
-  postedAt    DateTime?      @map("posted_at") // 実際の投稿日時
-  errorMessage String?       @map("error_message") // エラー時のメッセージ
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-  schedule    Schedule?      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  post        Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id           String         @id @default(cuid())
+  scheduleId   String?        @map("schedule_id")
+  postId       String         @map("post_id")
+  scheduledAt  DateTime       @map("scheduled_at")
+  status       ScheduleStatus @default(PENDING)
+  postedAt     DateTime?      @map("posted_at")
+  errorMessage String?        @map("error_message")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  schedule     Schedule?      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
   @@unique([scheduleId, scheduledAt])
   @@index([scheduledAt])
@@ -108,36 +103,32 @@ model ScheduleEntry {
   @@map("schedule_entries")
 }
 
-// スケジュールに含める選択されたPost
 model SchedulePost {
   id         String   @id @default(cuid())
   scheduleId String   @map("schedule_id")
   postId     String   @map("post_id")
   createdAt  DateTime @default(now()) @map("created_at")
-  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
   @@unique([scheduleId, postId])
   @@map("schedule_posts")
 }
 
-// 投稿戦略の種類
 enum PostingStrategy {
-  RANDOM       // ランダムに選択
-  NEWEST_FIRST // 新しいものから順番
-  OLDEST_FIRST // 古いものから順番
+  RANDOM
+  NEWEST_FIRST
+  OLDEST_FIRST
 }
 
-// 投稿対象の範囲
 enum PostingScope {
-  ALL      // 全てのPost
-  SELECTED // 選択されたPost
+  ALL
+  SELECTED
 }
 
-// スケジュールエントリーの状態
 enum ScheduleStatus {
-  PENDING   // 投稿待ち
-  POSTED    // 投稿完了
-  FAILED    // 投稿失敗
-  CANCELED  // キャンセル
+  PENDING
+  POSTED
+  FAILED
+  CANCELED
 }
