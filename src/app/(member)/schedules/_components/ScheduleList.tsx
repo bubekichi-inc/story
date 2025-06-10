@@ -152,8 +152,50 @@ export const ScheduleList = forwardRef<{ loadSchedules: () => void }>((props, re
   if (loading) {
     return (
       <Card>
-        <CardContent className="flex justify-center py-8">
-          <div className="text-gray-500">読み込み中...</div>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+            <div className="flex items-center space-x-2">
+              <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="space-y-2">
+                <div className="h-3 w-32 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 w-28 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 w-36 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+            <div>
+              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="flex-1">
+                    <div className="h-3 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
+                    <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="h-5 w-10 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="space-y-1">
+                <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
