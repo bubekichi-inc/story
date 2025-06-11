@@ -16,3 +16,16 @@ model Registration {
 
   @@map("registrations")
 }
+
+model User {
+  id                         String    @id @default(cuid())
+  email                      String    @unique
+  name                       String?
+  instagramAccessToken       String?   @map("instagram_access_token")
+  instagramBusinessAccountId String?   @map("instagram_business_account_id")
+  instagramTokenExpiresAt    DateTime? @map("instagram_token_expires_at")
+  createdAt                  DateTime  @default(now()) @map("created_at")
+  updatedAt                  DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
