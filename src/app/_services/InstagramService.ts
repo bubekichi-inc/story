@@ -286,4 +286,83 @@ export class InstagramService {
   getTokenExpirationDate(expiresInSeconds: number): Date {
     return new Date(Date.now() + expiresInSeconds * 1000);
   }
+
+  /**
+   * Helper function to update user's Instagram credentials in database
+   * Note: This requires the caller to provide the prisma instance
+   */
+  async updateUserInstagramCredentials(
+    prisma: {
+      user: {
+        update: (args: {
+          where: { id: string };
+          data: {
+            instagramAccessToken: string;
+            instagramBusinessAccountId: string;
+            instagramTokenExpiresAt: Date;
+          };
+        }) => Promise<unknown>;
+      };
+    },
+    userId: string,
+    accessToken: string,
+    businessAccountId: string,
+    expiresAt: Date
+  ): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        instagramAccessToken: accessToken,
+        instagramBusinessAccountId: businessAccountId,
+        instagramTokenExpiresAt: expiresAt,
+      },
+    });
+  }
+
+  /**
+   * Helper function to get user's Instagram credentials from database
+   * Note: This requires the caller to provide the prisma instance
+   */
+  async getUserInstagramCredentials(
+    prisma: {
+      user: {
+        findUnique: (args: {
+          where: { id: string };
+          select: {
+            instagramAccessToken: boolean;
+            instagramBusinessAccountId: boolean;
+            instagramTokenExpiresAt: boolean;
+          };
+        }) => Promise<{
+          instagramAccessToken: string | null;
+          instagramBusinessAccountId: string | null;
+          instagramTokenExpiresAt: Date | null;
+        } | null>;
+      };
+    },
+    userId: string
+  ): Promise<{
+    accessToken: string | null;
+    businessAccountId: string | null;
+    expiresAt: Date | null;
+  }> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        instagramAccessToken: true,
+        instagramBusinessAccountId: true,
+        instagramTokenExpiresAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return {
+      accessToken: user.instagramAccessToken,
+      businessAccountId: user.instagramBusinessAccountId,
+      expiresAt: user.instagramTokenExpiresAt,
+    };
+  }
 }
