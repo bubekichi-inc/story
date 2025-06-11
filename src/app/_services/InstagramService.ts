@@ -1,3 +1,40 @@
+/**
+ * Instagram Service - Instagram Graph API integration for StoryCastAI
+ * 
+ * This service provides complete Instagram Business Account integration including:
+ * - OAuth authentication flow
+ * - Long-lived token management
+ * - Instagram Stories posting
+ * - Business account detection
+ * 
+ * Environment Variables Required:
+ * - INSTAGRAM_CLIENT_ID: Your Instagram App ID
+ * - INSTAGRAM_CLIENT_SECRET: Your Instagram App Secret
+ * - INSTAGRAM_REDIRECT_URI: Your OAuth redirect URI
+ * 
+ * Usage Example:
+ * ```typescript
+ * const instagramService = new InstagramService();
+ * 
+ * // Step 1: Get authorization URL
+ * const authUrl = instagramService.getAuthorizationUrl();
+ * 
+ * // Step 2: Exchange code for tokens
+ * const shortToken = await instagramService.getShortLivedToken(code);
+ * const longToken = await instagramService.getLongLivedToken(shortToken.access_token);
+ * 
+ * // Step 3: Get business account
+ * const businessAccount = await instagramService.getBusinessAccount(longToken.access_token);
+ * 
+ * // Step 4: Post to Stories
+ * const result = await instagramService.postToStories(
+ *   businessAccount.instagram_business_account.id,
+ *   longToken.access_token,
+ *   'https://example.com/image.jpg'
+ * );
+ * ```
+ */
+
 interface InstagramUser {
   id: string;
   name?: string;
