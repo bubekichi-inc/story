@@ -25,8 +25,6 @@ export async function GET(request: NextRequest) {
       'pages_read_engagement', // GET {page-id}/?fields=instagram_business_account に必要
       'pages_manage_metadata', // https://graph.facebook.com/{page-id}/subscribed_apps でconversationsをsubscribeするために必要
       'business_management', // MetaBusinessマネージャからPageと連携したInstagramアカウントの場合必要
-      'threads_basic',
-      'threads_content_publish',
     ];
 
     const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${
