@@ -259,13 +259,6 @@ export async function exchangeCodeForToken(
 ): Promise<string | null> {
   try {
     const url = 'https://graph.facebook.com/v22.0/oauth/access_token';
-    // const params = new URLSearchParams({
-    //   client_id: process.env.FACEBOOK_APP_ID!,
-    //   client_secret: process.env.FACEBOOK_APP_SECRET!,
-    //   grant_type: 'authorization_code',
-    //   redirect_uri: redirectUri,
-    //   code,
-    // });
     const params = new URLSearchParams({
       grant_type: 'fb_exchange_token',
       client_id: process.env.FACEBOOK_APP_ID!,
