@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Menu, Calendar, LogOut } from 'lucide-react';
+import { User, Menu, Calendar, LogOut, Settings } from 'lucide-react';
 import { signOut } from '@/app/_actions/auth';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
@@ -76,6 +76,15 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
                 >
                   <Calendar className="size-4" />
                   <span>スケジュール</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/accounts"
+                  className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
+                >
+                  <Settings className="size-4" />
+                  <span>アカウント</span>
                 </Link>
               </li>
             </ul>

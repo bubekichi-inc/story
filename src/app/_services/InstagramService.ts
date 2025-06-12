@@ -213,3 +213,156 @@ export async function waitForRateLimit(): Promise<void> {
   const delayMs = parseInt(process.env.INSTAGRAM_RATE_LIMIT_DELAY_MS || '18000', 10);
   await new Promise((resolve) => setTimeout(resolve, delayMs));
 }
+
+/**
+ * Instagram認証用のURLを生成
+ */
+export function generateInstagramAuthUrl(redirectUri: string, state?: string): string {
+  const baseUrl = 'https://api.instagram.com/oauth/authorize';
+  const params = new URLSearchParams({
+    client_id: process.env.FACEBOOK_APP_ID!,
+    redirect_uri: redirectUri,
+    scope: 'user_profile,user_media,instagram_basic,instagram_content_publish',
+    response_type: 'code',
+    ...(state && { state }),
+  });
+  
+  return `${baseUrl}?${params.toString()}`;
+}
+
+/**
+ * Instagram認証コードを短期アクセストークンに交換
+ */
+export async function exchangeCodeForToken(code: string, redirectUri: string): Promise<string | null> {
+  try {
+    const url = 'https://api.instagram.com/oauth/access_token';
+    const params = new URLSearchParams({
+      client_id: process.env.FACEBOOK_APP_ID!,
+      client_secret: process.env.FACEBOOK_APP_SECRET!,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri,
+      code,
+    });
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to exchange code for token');
+    }
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    console.error('Token exchange error:', error);
+    return null;
+  }
+}
+
+/**
+ * 短期アクセストークンを長期アクセストークン（60日間有効）に交換
+ */
+export async function exchangeForLongLivedToken(shortLivedToken: string): Promise<{
+  accessToken: string;
+  expiresIn: number;
+} | null> {
+  try {
+    const url = 'https://graph.facebook.com/v18.0/oauth/access_token';
+    const params = new URLSearchParams({
+      grant_type: 'ig_exchange_token',
+      client_secret: process.env.FACEBOOK_APP_SECRET!,
+      access_token: shortLivedToken,
+    });
+
+    const response = await fetch(`${url}?${params}`);
+    if (!response.ok) {
+      throw new Error('Failed to exchange for long-lived token');
+    }
+
+    const data = await response.json();
+    return {
+      accessToken: data.access_token,
+      expiresIn: data.expires_in, // seconds
+    };
+  } catch (error) {
+    console.error('Long-lived token exchange error:', error);
+    return null;
+  }
+}
+
+/**
+ * Instagramビジネスアカウント情報を取得
+ */
+export async function getInstagramBusinessAccount(accessToken: string): Promise<{
+  id: string;
+  username: string;
+} | null> {
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v18.0/me?fields=id,username&access_token=${accessToken}`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Failed to get Instagram business account info');
+    }
+
+    const data = await response.json();
+    return {
+      id: data.id,
+      username: data.username,
+    };
+  } catch (error) {
+    console.error('Instagram business account info error:', error);
+    return null;
+  }
+}
+
+/**
+ * ユーザーのInstagram設定を保存
+ */
+export async function saveInstagramConfig(
+  userId: string,
+  accessToken: string,
+  businessAccountId: string,
+  expiresAt: Date
+): Promise<boolean> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        instagramAccessToken: accessToken,
+        instagramBusinessAccountId: businessAccountId,
+        instagramTokenExpiresAt: expiresAt,
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error('Instagram設定保存エラー:', error);
+    return false;
+  }
+}
+
+/**
+ * ユーザーのInstagram連携を解除
+ */
+export async function disconnectInstagram(userId: string): Promise<boolean> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        instagramAccessToken: null,
+        instagramBusinessAccountId: null,
+        instagramTokenExpiresAt: null,
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error('Instagram連携解除エラー:', error);
+    return false;
+  }
+}
