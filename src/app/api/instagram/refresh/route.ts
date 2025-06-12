@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/app/_lib/supabase/server';
-import { exchangeForLongLivedToken, refreshInstagramToken } from '@/app/_services/InstagramService';
+import { exchangeForLongLivedToken } from '@/app/_services/InstagramService';
 import { prisma } from '@/app/_lib/prisma';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // ユーザー認証チェック
     const supabase = await createClient();

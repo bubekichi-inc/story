@@ -18,6 +18,10 @@ model User {
   instagramTokenExpiresAt    DateTime?  @map("instagram_token_expires_at")
   facebookPageId             String?    @map("facebook_page_id")
   facebookPageAccessToken    String?    @map("facebook_page_access_token")
+  xAccessToken               String?    @map("x_access_token")
+  xAccessTokenSecret         String?    @map("x_access_token_secret")
+  xUserId                    String?    @map("x_user_id")
+  xUsername                  String?    @map("x_username")
   posts                      Post[]
   schedules                  Schedule[]
 

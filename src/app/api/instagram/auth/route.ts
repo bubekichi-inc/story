@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/_lib/supabase/server';
-import { generateInstagramAuthUrl } from '@/app/_services/InstagramService';
 
 export async function GET(request: NextRequest) {
   try {

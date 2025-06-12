@@ -6,6 +6,7 @@ import { PostingStrategy, PostingScope, ScheduleStatus } from '@prisma/client';
 import { RRule } from 'rrule';
 import { revalidatePath } from 'next/cache';
 import { postToInstagramStories } from '@/app/_services/InstagramService';
+import { postToTwitter, uploadImageToTwitter } from '@/app/_services/TwitterService';
 import { getScheduleStats } from '@/app/_services/ScheduleService';
 
 // スケジュール作成
@@ -250,10 +251,89 @@ export async function postImmediately(postId: string) {
     });
 
     try {
-      // 実際のInstagram API呼び出し
-      const success = await postToInstagramStories(post, user.id);
+      // ユーザーの連携状況を取得
+      const userData = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          instagramAccessToken: true,
+          instagramBusinessAccountId: true,
+          xAccessToken: true,
+          xAccessTokenSecret: true,
+          xUserId: true,
+        },
+      });
 
-      if (success) {
+      const hasInstagram = !!(
+        userData?.instagramAccessToken && userData?.instagramBusinessAccountId
+      );
+      const hasTwitter = !!(
+        userData?.xAccessToken &&
+        userData?.xAccessTokenSecret &&
+        userData?.xUserId
+      );
+
+      if (!hasInstagram && !hasTwitter) {
+        await prisma.scheduleEntry.update({
+          where: { id: scheduleEntry.id },
+          data: {
+            status: ScheduleStatus.FAILED,
+            errorMessage: 'Instagram または X の連携が必要です',
+          },
+        });
+        return { success: false, error: 'Instagram または X の連携が必要です' };
+      }
+
+      let instagramSuccess = false;
+      let twitterSuccess = false;
+      const errors: string[] = [];
+
+      // Instagram投稿
+      if (hasInstagram) {
+        try {
+          instagramSuccess = await postToInstagramStories(post, user.id);
+          if (!instagramSuccess) {
+            errors.push('Instagram投稿に失敗しました');
+          }
+        } catch (error) {
+          errors.push(
+            `Instagram投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`
+          );
+        }
+      }
+
+      // Twitter投稿
+      if (hasTwitter) {
+        try {
+          // 最初の画像を使用してTwitterに投稿
+          const firstImage = post.images[0];
+          const tweetText = firstImage.xText || post.storyText || '';
+
+          // 画像をTwitterにアップロード
+          let mediaIds: string[] = [];
+          try {
+            const mediaId = await uploadImageToTwitter(firstImage.imageUrl, {
+              accessToken: userData.xAccessToken!,
+              accessTokenSecret: userData.xAccessTokenSecret!,
+              userId: userData.xUserId!,
+            });
+            if (mediaId) {
+              mediaIds = [mediaId];
+            }
+          } catch (uploadError) {
+            console.error('Twitter画像アップロードエラー:', uploadError);
+          }
+
+          twitterSuccess = await postToTwitter(tweetText, mediaIds, user.id);
+          if (!twitterSuccess) {
+            errors.push('X投稿に失敗しました');
+          }
+        } catch (error) {
+          errors.push(`X投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`);
+        }
+      }
+
+      // 結果を判定
+      if ((hasInstagram && instagramSuccess) || (hasTwitter && twitterSuccess)) {
         await prisma.scheduleEntry.update({
           where: { id: scheduleEntry.id },
           data: {
@@ -262,19 +342,26 @@ export async function postImmediately(postId: string) {
           },
         });
 
+        const successMessages: string[] = [];
+        if (instagramSuccess) successMessages.push('Instagram');
+        if (twitterSuccess) successMessages.push('X');
+
         revalidatePath('/posts');
         revalidatePath('/schedules');
-        return { success: true, message: 'Instagramストーリーズに投稿が完了しました' };
+        return {
+          success: true,
+          message: `${successMessages.join('と')}に投稿が完了しました${errors.length > 0 ? ` (一部エラー: ${errors.join(', ')})` : ''}`,
+        };
       } else {
         await prisma.scheduleEntry.update({
           where: { id: scheduleEntry.id },
           data: {
             status: ScheduleStatus.FAILED,
-            errorMessage: 'Instagram投稿に失敗しました',
+            errorMessage: errors.join(', '),
           },
         });
 
-        return { success: false, error: 'Instagram投稿に失敗しました' };
+        return { success: false, error: errors.join(', ') };
       }
     } catch (apiError) {
       await prisma.scheduleEntry.update({

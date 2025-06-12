@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/_lib/supabase/server';
 
-export async function GET(request: NextRequest, { params }: { params: { accountId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ accountId: string }> }
+) {
   try {
     // ユーザー認証チェック
     const supabase = await createClient();
@@ -16,7 +19,7 @@ export async function GET(request: NextRequest, { params }: { params: { accountI
 
     const { searchParams } = new URL(request.url);
     const accessToken = searchParams.get('accessToken');
-    const { accountId } = params;
+    const { accountId } = await params;
 
     if (!accessToken || !accountId) {
       return NextResponse.json(

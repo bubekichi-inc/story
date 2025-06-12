@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/app/_components/ui/button';
-import { Instagram, CheckCircle, AlertCircle, Unlink, RefreshCw } from 'lucide-react';
+import { Instagram, CheckCircle, AlertCircle, Unlink, RefreshCw, Twitter } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface InstagramAccount {
@@ -10,6 +10,12 @@ interface InstagramAccount {
   username: string;
   isConnected: boolean;
   expiresAt?: Date;
+}
+
+interface TwitterAccount {
+  id: string;
+  username: string;
+  isConnected: boolean;
 }
 
 interface FacebookAccount {
@@ -28,10 +34,13 @@ interface InstagramAccountDetails {
 
 export default function AccountsPage() {
   const [instagramAccount, setInstagramAccount] = useState<InstagramAccount | null>(null);
+  const [twitterAccount, setTwitterAccount] = useState<TwitterAccount | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isTwitterConnecting, setIsTwitterConnecting] = useState(false);
+  const [isTwitterDisconnecting, setIsTwitterDisconnecting] = useState(false);
 
   // 1: ログインボタン, 2: FBページ選択, 3: IGアカウント確認
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -42,11 +51,17 @@ export default function AccountsPage() {
   const [igAccount, setIgAccount] = useState<InstagramAccountDetails | null>(null);
 
   useEffect(() => {
-    loadInstagramAccount();
+    const loadData = async () => {
+      await Promise.all([loadInstagramAccount(), loadTwitterAccount()]);
+      setIsLoading(false);
+    };
+
+    loadData();
 
     // URLパラメータをチェックして成功/エラーメッセージを表示
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
+    const twitterSuccess = urlParams.get('twitter_success');
     const error = urlParams.get('error');
 
     if (success) {
@@ -54,13 +69,19 @@ export default function AccountsPage() {
       // URLからパラメータを削除
       window.history.replaceState({}, '', '/accounts');
       loadInstagramAccount(); // 再読み込み
+    } else if (twitterSuccess) {
+      toast.success('Xアカウントが正常に連携されました');
+      // URLからパラメータを削除
+      window.history.replaceState({}, '', '/accounts');
+      loadTwitterAccount(); // 再読み込み
     } else if (error) {
       const errorMessages: Record<string, string> = {
-        access_denied: 'Instagram連携がキャンセルされました',
+        access_denied: '連携がキャンセルされました',
         invalid_request: '無効なリクエストです',
         server_error: 'サーバーエラーが発生しました。もう一度お試しください',
+        unauthorized: '認証エラーが発生しました',
       };
-      toast.error(errorMessages[error] || 'Instagram連携に失敗しました');
+      toast.error(errorMessages[error] || '連携に失敗しました');
       // URLからパラメータを削除
       window.history.replaceState({}, '', '/accounts');
     }
@@ -89,8 +110,21 @@ export default function AccountsPage() {
     } catch (error) {
       console.error('Instagram account load error:', error);
       setInstagramAccount(null);
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  const loadTwitterAccount = async () => {
+    try {
+      const response = await fetch('/api/user/twitter');
+      if (response.ok) {
+        const data = await response.json();
+        setTwitterAccount(data);
+      } else {
+        setTwitterAccount(null);
+      }
+    } catch (error) {
+      console.error('Twitter account load error:', error);
+      setTwitterAccount(null);
     }
   };
 
@@ -102,6 +136,17 @@ export default function AccountsPage() {
       console.error('Instagram connect error:', error);
       toast.error('Instagram連携の開始に失敗しました');
       setIsConnecting(false);
+    }
+  };
+
+  const handleTwitterConnect = async () => {
+    setIsTwitterConnecting(true);
+    try {
+      window.location.href = '/api/twitter/auth';
+    } catch (error) {
+      console.error('Twitter connect error:', error);
+      toast.error('X連携の開始に失敗しました');
+      setIsTwitterConnecting(false);
     }
   };
 
@@ -244,6 +289,31 @@ export default function AccountsPage() {
       toast.error('Instagramトークンの更新に失敗しました');
     } finally {
       setIsRefreshing(false);
+    }
+  };
+
+  const handleTwitterDisconnect = async () => {
+    if (!confirm('Xの連携を解除しますか？')) {
+      return;
+    }
+
+    setIsTwitterDisconnecting(true);
+    try {
+      const response = await fetch('/api/user/twitter', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setTwitterAccount(null);
+        toast.success('Xの連携を解除しました');
+      } else {
+        throw new Error('Failed to disconnect Twitter');
+      }
+    } catch (error) {
+      console.error('Twitter disconnect error:', error);
+      toast.error('X連携の解除に失敗しました');
+    } finally {
+      setIsTwitterDisconnecting(false);
     }
   };
 
@@ -459,6 +529,73 @@ export default function AccountsPage() {
                 </div>
               )}
             </>
+          )}
+        </div>
+
+        {/* X (Twitter) 連携 */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+              <Twitter className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">X (Twitter)</h2>
+              <p className="text-sm text-gray-600">ツイートへの自動投稿機能</p>
+            </div>
+          </div>
+
+          {twitterAccount?.isConnected ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-medium">連携済み</span>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">アカウント名:</span>
+                    <span className="font-medium">@{twitterAccount.username}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">ユーザーID:</span>
+                    <span className="font-mono text-xs">{twitterAccount.id}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleTwitterDisconnect}
+                  disabled={isTwitterDisconnecting}
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                >
+                  <Unlink className="w-4 h-4 mr-2" />
+                  {isTwitterDisconnecting ? '連携解除中...' : '連携を解除'}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-gray-500">
+                <AlertCircle className="w-5 h-5" />
+                <span>未連携</span>
+              </div>
+
+              <p className="text-sm text-gray-600">
+                Xアカウントと連携して、ツイートへの自動投稿を有効にします。
+              </p>
+
+              <Button
+                onClick={handleTwitterConnect}
+                disabled={isTwitterConnecting}
+                className="bg-black hover:bg-gray-800 text-white"
+              >
+                <Twitter className="w-4 h-4 mr-2" />
+                {isTwitterConnecting ? '連携中...' : 'Xと連携'}
+              </Button>
+            </div>
           )}
         </div>
       </div>
