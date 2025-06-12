@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/app/_components/ui/button';
-import { Instagram, CheckCircle, AlertCircle, Unlink, RefreshCw, Twitter } from 'lucide-react';
+import { Instagram, CheckCircle, AlertCircle, Unlink, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface InstagramAccount {
@@ -532,15 +532,15 @@ export default function AccountsPage() {
           )}
         </div>
 
-        {/* X (Twitter) 連携 */}
+        {/* X連携 */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
-              <Twitter className="w-6 h-6 text-white" />
+              <X className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">X (Twitter)</h2>
-              <p className="text-sm text-gray-600">ツイートへの自動投稿機能</p>
+              <h2 className="text-lg font-semibold text-gray-900">X</h2>
+              <p className="text-sm text-gray-600">ポストへの自動投稿機能</p>
             </div>
           </div>
 
@@ -584,7 +584,7 @@ export default function AccountsPage() {
               </div>
 
               <p className="text-sm text-gray-600">
-                Xアカウントと連携して、ツイートへの自動投稿を有効にします。
+                Xアカウントと連携して、ポストへの自動投稿を有効にします。
               </p>
 
               <Button
@@ -592,7 +592,7 @@ export default function AccountsPage() {
                 disabled={isTwitterConnecting}
                 className="bg-black hover:bg-gray-800 text-white"
               >
-                <Twitter className="w-4 h-4 mr-2" />
+                <X className="w-4 h-4 mr-2" />
                 {isTwitterConnecting ? '連携中...' : 'Xと連携'}
               </Button>
             </div>
