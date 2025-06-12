@@ -230,14 +230,19 @@ export async function waitForRateLimit(): Promise<void> {
  * Instagram認証用のURLを生成
  */
 export function generateInstagramAuthUrl(redirectUri: string, state?: string): string {
-  const scope = 'user_profile,user_media,instagram_basic,instagram_content_publish';
+  // Instagram Graph API用の有効なスコープ
+  // instagram_basic: 基本的なプロフィール情報の読み取り
+  // instagram_content_publish: コンテンツの投稿
+  // pages_show_list: ページの一覧表示（ビジネスアカウント用）
+  // pages_read_engagement: ページのエンゲージメント読み取り
+  const scope = 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement';
   const baseUrl = 'https://www.facebook.com/dialog/oauth';
   const params = new URLSearchParams({
     client_id: process.env.FACEBOOK_APP_ID!,
     display: 'page',
     extras: '{"setup":{"channel": "IG_API_ONBOARDING"}}',
     redirect_uri: redirectUri,
-    response_type: 'token',
+    response_type: 'code', // tokenではなくcodeを使用
     scope,
     ...(state && { state }),
   });
