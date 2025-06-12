@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/app/_components/ui/button';
-import { Instagram, CheckCircle, AlertCircle, Unlink } from 'lucide-react';
+import { Instagram, CheckCircle, AlertCircle, Unlink, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface InstagramAccount {
@@ -31,6 +31,7 @@ export default function AccountsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // 1: ログインボタン, 2: FBページ選択, 3: IGアカウント確認
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -213,6 +214,39 @@ export default function AccountsPage() {
     }
   };
 
+  const handleInstagramRefresh = async () => {
+    if (!confirm('Instagramトークンの有効期限を更新しますか？')) {
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      const response = await fetch('/api/instagram/refresh', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 成功時にアカウント情報を再読み込み
+        await loadInstagramAccount();
+        toast.success('Instagramトークンが正常に更新されました');
+      } else {
+        if (data.requireReauth) {
+          // 再認証が必要な場合
+          toast.error('トークンの更新に失敗しました。再度認証を行ってください。');
+        } else {
+          throw new Error(data.error || 'Failed to refresh token');
+        }
+      }
+    } catch (error) {
+      console.error('Instagram refresh error:', error);
+      toast.error('Instagramトークンの更新に失敗しました');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -337,23 +371,71 @@ export default function AccountsPage() {
                       {instagramAccount.expiresAt && (
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">トークン有効期限:</span>
-                          <span className="text-gray-800">
+                          <span
+                            className={`${new Date(instagramAccount.expiresAt).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000 ? 'text-orange-600 font-medium' : 'text-gray-800'}`}
+                          >
                             {new Date(instagramAccount.expiresAt).toLocaleDateString('ja-JP')}
+                            {new Date(instagramAccount.expiresAt).getTime() - Date.now() <
+                              7 * 24 * 60 * 60 * 1000 && (
+                              <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                                期限切れ間近
+                              </span>
+                            )}
                           </span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <Button
-                    onClick={handleInstagramDisconnect}
-                    disabled={isDisconnecting}
-                    variant="outline"
-                    className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                  >
-                    <Unlink className="w-4 h-4 mr-2" />
-                    {isDisconnecting ? '連携解除中...' : '連携を解除'}
-                  </Button>
+                  {/* トークン期限切れ間近の警告 */}
+                  {instagramAccount.expiresAt &&
+                    new Date(instagramAccount.expiresAt).getTime() - Date.now() <
+                      7 * 24 * 60 * 60 * 1000 && (
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium text-orange-800">
+                              トークン期限切れ間近
+                            </h4>
+                            <p className="text-sm text-orange-700 mt-1">
+                              アクセストークンの有効期限が近づいています。投稿を継続するために、今すぐトークンの有効期限更新することをお勧めします。
+                            </p>
+                            <Button
+                              onClick={handleInstagramRefresh}
+                              disabled={isRefreshing}
+                              className="mt-3 bg-orange-600 hover:bg-orange-700 text-white"
+                              size="sm"
+                            >
+                              <RefreshCw className="w-4 h-4 mr-2" />
+                              {isRefreshing ? '更新中...' : '今すぐトークンを更新'}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleInstagramRefresh}
+                      disabled={isRefreshing}
+                      variant="outline"
+                      className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      {isRefreshing ? '有効期限を更新中...' : '有効期限を更新'}
+                    </Button>
+
+                    <Button
+                      onClick={handleInstagramDisconnect}
+                      disabled={isDisconnecting}
+                      variant="outline"
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      <Unlink className="w-4 h-4 mr-2" />
+                      {isDisconnecting ? '連携解除中...' : '連携を解除'}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
