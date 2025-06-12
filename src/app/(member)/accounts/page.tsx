@@ -20,12 +20,12 @@ export default function AccountsPage() {
 
   useEffect(() => {
     loadInstagramAccount();
-    
+
     // URLパラメータをチェックして成功/エラーメッセージを表示
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const error = urlParams.get('error');
-    
+
     if (success) {
       toast.success('Instagramアカウントが正常に連携されました');
       // URLからパラメータを削除
@@ -139,7 +139,7 @@ export default function AccountsPage() {
                 <CheckCircle className="w-5 h-5" />
                 <span className="font-medium">連携済み</span>
               </div>
-              
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
@@ -177,17 +177,10 @@ export default function AccountsPage() {
                 <AlertCircle className="w-5 h-5" />
                 <span>未連携</span>
               </div>
-              
+
               <p className="text-sm text-gray-600">
                 Instagramビジネスアカウントと連携して、ストーリーズへの自動投稿を有効にします。
-                連携には以下の権限が必要です：
               </p>
-              
-              <ul className="text-sm text-gray-600 space-y-1 ml-4">
-                <li>• プロフィール情報の読み取り</li>
-                <li>• メディアの読み取り</li>
-                <li>• ストーリーズへの投稿</li>
-              </ul>
 
               <Button
                 onClick={handleInstagramConnect}

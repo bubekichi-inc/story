@@ -230,22 +230,28 @@ export async function waitForRateLimit(): Promise<void> {
  * Instagram認証用のURLを生成
  */
 export function generateInstagramAuthUrl(redirectUri: string, state?: string): string {
-  const baseUrl = 'https://api.instagram.com/oauth/authorize';
+  const scope = 'user_profile,user_media,instagram_basic,instagram_content_publish';
+  const baseUrl = 'https://www.facebook.com/dialog/oauth';
   const params = new URLSearchParams({
     client_id: process.env.FACEBOOK_APP_ID!,
+    display: 'page',
+    extras: '{"setup":{"channel": "IG_API_ONBOARDING"}}',
     redirect_uri: redirectUri,
-    scope: 'user_profile,user_media,instagram_basic,instagram_content_publish',
-    response_type: 'code',
+    response_type: 'token',
+    scope,
     ...(state && { state }),
   });
-  
+
   return `${baseUrl}?${params.toString()}`;
 }
 
 /**
  * Instagram認証コードを短期アクセストークンに交換
  */
-export async function exchangeCodeForToken(code: string, redirectUri: string): Promise<string | null> {
+export async function exchangeCodeForToken(
+  code: string,
+  redirectUri: string
+): Promise<string | null> {
   try {
     const url = 'https://api.instagram.com/oauth/access_token';
     const params = new URLSearchParams({
@@ -318,7 +324,7 @@ export async function getInstagramBusinessAccount(accessToken: string): Promise<
     const response = await fetch(
       `https://graph.facebook.com/v18.0/me?fields=id,username&access_token=${accessToken}`
     );
-    
+
     if (!response.ok) {
       throw new Error('Failed to get Instagram business account info');
     }
