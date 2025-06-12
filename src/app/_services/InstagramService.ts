@@ -1,5 +1,17 @@
 import { prisma } from '@/app/_lib/prisma';
-import { PostImage } from '@prisma/client';
+
+type PostImage = {
+  id: string;
+  postId: string;
+  imageUrl: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  order: number;
+  createdAt: Date;
+  threadsText: string | null;
+  xText: string | null;
+};
 
 type PostWithImages = {
   id: string;
