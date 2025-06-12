@@ -350,7 +350,7 @@ export default function AccountsPage() {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Instagram</h2>
-              <p className="text-sm text-gray-600">ストーリーズへの自動投稿機能</p>
+              <p className="text-sm text-gray-600">ストーリーズへの投稿に必要です。</p>
             </div>
           </div>
 
@@ -540,7 +540,7 @@ export default function AccountsPage() {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">X</h2>
-              <p className="text-sm text-gray-600">ポストへの自動投稿機能</p>
+              <p className="text-sm text-gray-600">ストーリー投稿をXに転用する際に必要です。</p>
             </div>
           </div>
 
