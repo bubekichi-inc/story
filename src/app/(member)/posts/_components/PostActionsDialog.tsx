@@ -96,7 +96,7 @@ export function PostActionsDialog({ postId, children }: PostActionsDialogProps) 
               <Send className="h-5 w-5 text-blue-600" />
               <div>
                 <h3 className="font-medium">即時投稿</h3>
-                <p className="text-sm text-gray-600">今すぐInstagramストーリーに投稿</p>
+                <p className="text-sm text-gray-600">今すぐ各SNSに投稿する</p>
               </div>
             </div>
             <Button onClick={handleImmediatePost} disabled={loading} className="w-full">
