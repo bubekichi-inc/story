@@ -1,9 +1,5 @@
 import { createClient } from '@/app/_lib/supabase/server';
 import { redirect } from 'next/navigation';
-import FeaturesSection from './_components/FeatureSection';
-import Footer from './_components/Footer';
-import HeroSection from './_components/HeloSection';
-import Navbar from './_components/Navbar';
 
 export default async function Home() {
   // すでにログインしている場合はダッシュボードにリダイレクト
