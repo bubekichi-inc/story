@@ -403,10 +403,7 @@ export async function processScheduleEntries() {
             const threadsText = firstImage.threadsText || entry.post.storyText || '';
 
             // 画像付き投稿を作成
-            const threadsPostId = await threadsService.createImagePost(
-              firstImage.imageUrl,
-              threadsText
-            );
+            const threadsPostId = await threadsService.createTextPost(threadsText);
             if (threadsPostId) {
               threadsSuccess = true;
             } else {

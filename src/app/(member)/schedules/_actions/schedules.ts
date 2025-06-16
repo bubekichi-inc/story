@@ -292,6 +292,8 @@ export async function postImmediately(postId: string) {
       let threadsSuccess = false;
       const errors: string[] = [];
 
+      const firstImage = post.images[0];
+
       // Instagram投稿
       if (hasInstagram) {
         try {
@@ -307,28 +309,9 @@ export async function postImmediately(postId: string) {
       }
 
       // Twitter投稿
-      if (hasTwitter) {
+      if (hasTwitter && firstImage.xText) {
         try {
-          // 最初の画像を使用してTwitterに投稿
-          const firstImage = post.images[0];
-          const tweetText = firstImage.xText || post.storyText || '';
-
-          // 画像をTwitterにアップロード
-          let mediaIds: string[] = [];
-          try {
-            const mediaId = await uploadImageToTwitter(firstImage.imageUrl, {
-              accessToken: userData.xAccessToken!,
-              accessTokenSecret: userData.xAccessTokenSecret!,
-              userId: userData.xUserId!,
-            });
-            if (mediaId) {
-              mediaIds = [mediaId];
-            }
-          } catch (uploadError) {
-            console.error('Twitter画像アップロードエラー:', uploadError);
-          }
-
-          twitterSuccess = await postToTwitter(tweetText, mediaIds, user.id);
+          twitterSuccess = await postToTwitter(firstImage.xText, [], user.id);
           if (!twitterSuccess) {
             errors.push('X投稿に失敗しました');
           }
@@ -338,20 +321,15 @@ export async function postImmediately(postId: string) {
       }
 
       // Threads投稿
-      if (hasThreads) {
+      if (hasThreads && firstImage.threadsText) {
         try {
           const threadsService = new ThreadsService(
             userData.threadsAccessToken!,
             userData.threadsUserId!
           );
-          const firstImage = post.images[0];
-          const threadsText = firstImage.threadsText || post.storyText || '';
 
           // 画像付き投稿を作成
-          const threadsPostId = await threadsService.createImagePost(
-            firstImage.imageUrl,
-            threadsText
-          );
+          const threadsPostId = await threadsService.createTextPost(firstImage.threadsText);
           if (threadsPostId) {
             threadsSuccess = true;
           } else {
