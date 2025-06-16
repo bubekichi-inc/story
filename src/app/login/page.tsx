@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { signIn } from '@/app/_actions/auth';
 import { Card } from '@/app/_components/ui/card';
 import { Button } from '@/app/_components/ui/button';
@@ -21,7 +22,7 @@ export default function LoginPage() {
       if (!result.success) {
         setMessage(result.message);
       }
-    } catch (error) {
+    } catch {
       setMessage('ログインに失敗しました');
     } finally {
       setIsLoading(false);
@@ -79,9 +80,9 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             アカウントをお持ちでない方は{' '}
-            <a href="/" className="text-blue-600 hover:underline">
+            <Link href="/" className="text-blue-600 hover:underline">
               こちらから登録
-            </a>
+            </Link>
           </p>
         </div>
       </Card>
