@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Menu, Calendar, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { User, Menu, Calendar, LogOut, Settings } from 'lucide-react';
 import { signOut } from '@/app/_actions/auth';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
@@ -12,10 +13,20 @@ interface MemberLayoutProps {
 
 export default function MemberLayout({ children }: MemberLayoutProps) {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await signOut();
     setShowUserDropdown(false);
+  };
+
+  const getMenuItemClassName = (path: string) => {
+    const isActive = pathname.startsWith(path);
+    return `flex items-center gap-2 px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+      isActive
+        ? 'bg-purple-100 text-purple-700 border-l-2 border-purple-600'
+        : 'text-gray-700 hover:bg-gray-100'
+    }`;
   };
 
   return (
@@ -61,19 +72,19 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
           <nav className="p-2">
             <ul className="space-y-1">
               <li>
-                <Link
-                  href="/posts"
-                  className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
-                >
+                <Link href="/accounts" className={getMenuItemClassName('/accounts')}>
+                  <Settings className="size-4" />
+                  <span>アカウント</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/posts" className={getMenuItemClassName('/posts')}>
                   <Menu className="size-4" />
                   <span>投稿コンテンツ</span>
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/schedules"
-                  className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
-                >
+                <Link href="/schedules" className={getMenuItemClassName('/schedules')}>
                   <Calendar className="size-4" />
                   <span>スケジュール</span>
                 </Link>

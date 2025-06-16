@@ -6,6 +6,8 @@ import { PostingStrategy, PostingScope, ScheduleStatus } from '@prisma/client';
 import { RRule } from 'rrule';
 import { revalidatePath } from 'next/cache';
 import { postToInstagramStories } from '@/app/_services/InstagramService';
+import { postToTwitter } from '@/app/_services/TwitterService';
+import { ThreadsService } from '@/app/_services/ThreadsService';
 import { getScheduleStats } from '@/app/_services/ScheduleService';
 
 // スケジュール作成
@@ -250,10 +252,143 @@ export async function postImmediately(postId: string) {
     });
 
     try {
-      // 実際のInstagram API呼び出し
-      const success = await postToInstagramStories(post, user.id);
+      // ユーザーの連携状況を取得
+      const userData = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          instagramAccessToken: true,
+          instagramBusinessAccountId: true,
+          xAccessToken: true,
+          xAccessTokenSecret: true,
+          xUserId: true,
+          threadsAccessToken: true,
+          threadsUserId: true,
+        },
+      });
 
-      if (success) {
+      const hasInstagram = !!(
+        userData?.instagramAccessToken && userData?.instagramBusinessAccountId
+      );
+      const hasTwitter = !!(
+        userData?.xAccessToken &&
+        userData?.xAccessTokenSecret &&
+        userData?.xUserId
+      );
+      const hasThreads = !!(userData?.threadsAccessToken && userData?.threadsUserId);
+
+      if (!hasInstagram && !hasTwitter && !hasThreads) {
+        await prisma.scheduleEntry.update({
+          where: { id: scheduleEntry.id },
+          data: {
+            status: ScheduleStatus.FAILED,
+            errorMessage: 'Instagram、X、または Threads の連携が必要です',
+          },
+        });
+        return { success: false, error: 'Instagram、X、または Threads の連携が必要です' };
+      }
+
+      const firstImage = post.images[0];
+
+      // 各SNSへの投稿処理を並列実行するためのPromise配列
+      const postingPromises: Promise<{ platform: string; success: boolean; error?: string }>[] = [];
+
+      // Instagram投稿
+      if (hasInstagram) {
+        postingPromises.push(
+          (async () => {
+            try {
+              const success = await postToInstagramStories(post, user.id);
+              return {
+                platform: 'Instagram',
+                success,
+                error: success ? undefined : 'Instagram投稿に失敗しました',
+              };
+            } catch (error) {
+              return {
+                platform: 'Instagram',
+                success: false,
+                error: `Instagram投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
+              };
+            }
+          })()
+        );
+      }
+
+      // Twitter投稿
+      if (hasTwitter && firstImage.xText) {
+        postingPromises.push(
+          (async () => {
+            try {
+              const success = await postToTwitter(firstImage.xText!, [], user.id);
+              return {
+                platform: 'X',
+                success,
+                error: success ? undefined : 'X投稿に失敗しました',
+              };
+            } catch (error) {
+              return {
+                platform: 'X',
+                success: false,
+                error: `X投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
+              };
+            }
+          })()
+        );
+      }
+
+      // Threads投稿
+      if (hasThreads && firstImage.threadsText) {
+        postingPromises.push(
+          (async () => {
+            try {
+              const threadsService = new ThreadsService(
+                userData.threadsAccessToken!,
+                userData.threadsUserId!
+              );
+              const threadsPostId = await threadsService.createTextPost(firstImage.threadsText!);
+              return {
+                platform: 'Threads',
+                success: !!threadsPostId,
+                error: threadsPostId ? undefined : 'Threads投稿に失敗しました',
+              };
+            } catch (error) {
+              return {
+                platform: 'Threads',
+                success: false,
+                error: `Threads投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
+              };
+            }
+          })()
+        );
+      }
+
+      // 全てのSNS投稿を並列実行
+      const results = await Promise.allSettled(postingPromises);
+
+      // 結果を集計
+      let instagramSuccess = false;
+      let twitterSuccess = false;
+      let threadsSuccess = false;
+      const errors: string[] = [];
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const { platform, success, error } = result.value;
+          if (platform === 'Instagram') instagramSuccess = success;
+          if (platform === 'X') twitterSuccess = success;
+          if (platform === 'Threads') threadsSuccess = success;
+          if (error) errors.push(error);
+        } else {
+          errors.push(`投稿処理中にエラーが発生しました: ${result.reason}`);
+        }
+      });
+
+      // 結果を判定
+      if (
+        (hasInstagram && instagramSuccess) ||
+        (hasTwitter && twitterSuccess) ||
+        (hasThreads && threadsSuccess)
+      ) {
         await prisma.scheduleEntry.update({
           where: { id: scheduleEntry.id },
           data: {
@@ -262,19 +397,27 @@ export async function postImmediately(postId: string) {
           },
         });
 
+        const successMessages: string[] = [];
+        if (instagramSuccess) successMessages.push('Instagram');
+        if (twitterSuccess) successMessages.push('X');
+        if (threadsSuccess) successMessages.push('Threads');
+
         revalidatePath('/posts');
         revalidatePath('/schedules');
-        return { success: true, message: 'Instagramストーリーズに投稿が完了しました' };
+        return {
+          success: true,
+          message: `${successMessages.join('と')}に投稿が完了しました${errors.length > 0 ? ` (一部エラー: ${errors.join(', ')})` : ''}`,
+        };
       } else {
         await prisma.scheduleEntry.update({
           where: { id: scheduleEntry.id },
           data: {
             status: ScheduleStatus.FAILED,
-            errorMessage: 'Instagram投稿に失敗しました',
+            errorMessage: errors.join(', '),
           },
         });
 
-        return { success: false, error: 'Instagram投稿に失敗しました' };
+        return { success: false, error: errors.join(', ') };
       }
     } catch (apiError) {
       await prisma.scheduleEntry.update({
