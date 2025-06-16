@@ -18,10 +18,11 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <Navbar />
+      メンテナンス中...
+      {/* <Navbar />
       <HeroSection />
       <FeaturesSection />
-      <Footer />
+      <Footer /> */}
     </main>
   );
 }
