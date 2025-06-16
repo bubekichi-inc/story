@@ -72,6 +72,12 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
           <nav className="p-2">
             <ul className="space-y-1">
               <li>
+                <Link href="/accounts" className={getMenuItemClassName('/accounts')}>
+                  <Settings className="size-4" />
+                  <span>アカウント</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/posts" className={getMenuItemClassName('/posts')}>
                   <Menu className="size-4" />
                   <span>投稿コンテンツ</span>
@@ -81,12 +87,6 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
                 <Link href="/schedules" className={getMenuItemClassName('/schedules')}>
                   <Calendar className="size-4" />
                   <span>スケジュール</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/accounts" className={getMenuItemClassName('/accounts')}>
-                  <Settings className="size-4" />
-                  <span>アカウント</span>
                 </Link>
               </li>
             </ul>

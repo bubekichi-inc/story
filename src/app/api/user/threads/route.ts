@@ -30,8 +30,10 @@ export async function GET(request: NextRequest) {
     // Threads APIでユーザー情報を取得して接続を確認
     try {
       const response = await fetch(
-        `https://graph.threads.net/v1.0/${userData.threadsUserId}?fields=id,username&access_token=${userData.threadsAccessToken}`
+        `https://graph.threads.net/v1.0/me/?fields=id,username&access_token=${userData.threadsAccessToken}`
       );
+
+      console.log('Threads API response status:', userData);
 
       if (response.ok) {
         const threadsUserData = await response.json();
