@@ -287,60 +287,101 @@ export async function postImmediately(postId: string) {
         return { success: false, error: 'Instagram、X、または Threads の連携が必要です' };
       }
 
+      const firstImage = post.images[0];
+
+      // 各SNSへの投稿処理を並列実行するためのPromise配列
+      const postingPromises: Promise<{ platform: string; success: boolean; error?: string }>[] = [];
+
+      // Instagram投稿
+      if (hasInstagram) {
+        postingPromises.push(
+          (async () => {
+            try {
+              const success = await postToInstagramStories(post, user.id);
+              return {
+                platform: 'Instagram',
+                success,
+                error: success ? undefined : 'Instagram投稿に失敗しました',
+              };
+            } catch (error) {
+              return {
+                platform: 'Instagram',
+                success: false,
+                error: `Instagram投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
+              };
+            }
+          })()
+        );
+      }
+
+      // Twitter投稿
+      if (hasTwitter && firstImage.xText) {
+        postingPromises.push(
+          (async () => {
+            try {
+              const success = await postToTwitter(firstImage.xText!, [], user.id);
+              return {
+                platform: 'X',
+                success,
+                error: success ? undefined : 'X投稿に失敗しました',
+              };
+            } catch (error) {
+              return {
+                platform: 'X',
+                success: false,
+                error: `X投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
+              };
+            }
+          })()
+        );
+      }
+
+      // Threads投稿
+      if (hasThreads && firstImage.threadsText) {
+        postingPromises.push(
+          (async () => {
+            try {
+              const threadsService = new ThreadsService(
+                userData.threadsAccessToken!,
+                userData.threadsUserId!
+              );
+              const threadsPostId = await threadsService.createTextPost(firstImage.threadsText!);
+              return {
+                platform: 'Threads',
+                success: !!threadsPostId,
+                error: threadsPostId ? undefined : 'Threads投稿に失敗しました',
+              };
+            } catch (error) {
+              return {
+                platform: 'Threads',
+                success: false,
+                error: `Threads投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
+              };
+            }
+          })()
+        );
+      }
+
+      // 全てのSNS投稿を並列実行
+      const results = await Promise.allSettled(postingPromises);
+
+      // 結果を集計
       let instagramSuccess = false;
       let twitterSuccess = false;
       let threadsSuccess = false;
       const errors: string[] = [];
 
-      const firstImage = post.images[0];
-
-      // Instagram投稿
-      if (hasInstagram) {
-        try {
-          instagramSuccess = await postToInstagramStories(post, user.id);
-          if (!instagramSuccess) {
-            errors.push('Instagram投稿に失敗しました');
-          }
-        } catch (error) {
-          errors.push(
-            `Instagram投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`
-          );
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const { platform, success, error } = result.value;
+          if (platform === 'Instagram') instagramSuccess = success;
+          if (platform === 'X') twitterSuccess = success;
+          if (platform === 'Threads') threadsSuccess = success;
+          if (error) errors.push(error);
+        } else {
+          errors.push(`投稿処理中にエラーが発生しました: ${result.reason}`);
         }
-      }
-
-      // Twitter投稿
-      if (hasTwitter && firstImage.xText) {
-        try {
-          twitterSuccess = await postToTwitter(firstImage.xText, [], user.id);
-          if (!twitterSuccess) {
-            errors.push('X投稿に失敗しました');
-          }
-        } catch (error) {
-          errors.push(`X投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`);
-        }
-      }
-
-      // Threads投稿
-      if (hasThreads && firstImage.threadsText) {
-        try {
-          const threadsService = new ThreadsService(
-            userData.threadsAccessToken!,
-            userData.threadsUserId!
-          );
-
-          // 画像付き投稿を作成
-          const threadsPostId = await threadsService.createTextPost(firstImage.threadsText);
-          if (threadsPostId) {
-            threadsSuccess = true;
-          } else {
-            errors.push('Threads投稿に失敗しました');
-          }
-        } catch (error) {
-          errors.push(
-            `Threads投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`
-          );
-        }
-      }
+      });
 
       // 結果を判定
       if (
