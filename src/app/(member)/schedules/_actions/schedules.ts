@@ -7,6 +7,7 @@ import { RRule } from 'rrule';
 import { revalidatePath } from 'next/cache';
 import { postToInstagramStories } from '@/app/_services/InstagramService';
 import { postToTwitter, uploadImageToTwitter } from '@/app/_services/TwitterService';
+import { ThreadsService } from '@/app/_services/ThreadsService';
 import { getScheduleStats } from '@/app/_services/ScheduleService';
 
 // スケジュール作成
@@ -260,6 +261,8 @@ export async function postImmediately(postId: string) {
           xAccessToken: true,
           xAccessTokenSecret: true,
           xUserId: true,
+          threadsAccessToken: true,
+          threadsUserId: true,
         },
       });
 
@@ -271,20 +274,22 @@ export async function postImmediately(postId: string) {
         userData?.xAccessTokenSecret &&
         userData?.xUserId
       );
+      const hasThreads = !!(userData?.threadsAccessToken && userData?.threadsUserId);
 
-      if (!hasInstagram && !hasTwitter) {
+      if (!hasInstagram && !hasTwitter && !hasThreads) {
         await prisma.scheduleEntry.update({
           where: { id: scheduleEntry.id },
           data: {
             status: ScheduleStatus.FAILED,
-            errorMessage: 'Instagram または X の連携が必要です',
+            errorMessage: 'Instagram、X、または Threads の連携が必要です',
           },
         });
-        return { success: false, error: 'Instagram または X の連携が必要です' };
+        return { success: false, error: 'Instagram、X、または Threads の連携が必要です' };
       }
 
       let instagramSuccess = false;
       let twitterSuccess = false;
+      let threadsSuccess = false;
       const errors: string[] = [];
 
       // Instagram投稿
@@ -332,8 +337,39 @@ export async function postImmediately(postId: string) {
         }
       }
 
+      // Threads投稿
+      if (hasThreads) {
+        try {
+          const threadsService = new ThreadsService(
+            userData.threadsAccessToken!,
+            userData.threadsUserId!
+          );
+          const firstImage = post.images[0];
+          const threadsText = firstImage.threadsText || post.storyText || '';
+
+          // 画像付き投稿を作成
+          const threadsPostId = await threadsService.createImagePost(
+            firstImage.imageUrl,
+            threadsText
+          );
+          if (threadsPostId) {
+            threadsSuccess = true;
+          } else {
+            errors.push('Threads投稿に失敗しました');
+          }
+        } catch (error) {
+          errors.push(
+            `Threads投稿エラー: ${error instanceof Error ? error.message : '不明なエラー'}`
+          );
+        }
+      }
+
       // 結果を判定
-      if ((hasInstagram && instagramSuccess) || (hasTwitter && twitterSuccess)) {
+      if (
+        (hasInstagram && instagramSuccess) ||
+        (hasTwitter && twitterSuccess) ||
+        (hasThreads && threadsSuccess)
+      ) {
         await prisma.scheduleEntry.update({
           where: { id: scheduleEntry.id },
           data: {
@@ -345,6 +381,7 @@ export async function postImmediately(postId: string) {
         const successMessages: string[] = [];
         if (instagramSuccess) successMessages.push('Instagram');
         if (twitterSuccess) successMessages.push('X');
+        if (threadsSuccess) successMessages.push('Threads');
 
         revalidatePath('/posts');
         revalidatePath('/schedules');

@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/app/_components/ui/button';
-import { Instagram, CheckCircle, AlertCircle, Unlink, RefreshCw, X } from 'lucide-react';
+import {
+  Instagram,
+  CheckCircle,
+  AlertCircle,
+  Unlink,
+  RefreshCw,
+  X,
+  MessageCircle,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface InstagramAccount {
@@ -16,6 +24,13 @@ interface TwitterAccount {
   id: string;
   username: string;
   isConnected: boolean;
+}
+
+interface ThreadsAccount {
+  id: string;
+  username: string;
+  isConnected: boolean;
+  expiresAt?: Date;
 }
 
 interface FacebookAccount {
@@ -35,12 +50,16 @@ interface InstagramAccountDetails {
 export default function AccountsPage() {
   const [instagramAccount, setInstagramAccount] = useState<InstagramAccount | null>(null);
   const [twitterAccount, setTwitterAccount] = useState<TwitterAccount | null>(null);
+  const [threadsAccount, setThreadsAccount] = useState<ThreadsAccount | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isTwitterConnecting, setIsTwitterConnecting] = useState(false);
   const [isTwitterDisconnecting, setIsTwitterDisconnecting] = useState(false);
+  const [isThreadsConnecting, setIsThreadsConnecting] = useState(false);
+  const [isThreadsDisconnecting, setIsThreadsDisconnecting] = useState(false);
+  const [isThreadsRefreshing, setIsThreadsRefreshing] = useState(false);
 
   // 1: ログインボタン, 2: FBページ選択, 3: IGアカウント確認
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -52,7 +71,7 @@ export default function AccountsPage() {
 
   useEffect(() => {
     const loadData = async () => {
-      await Promise.all([loadInstagramAccount(), loadTwitterAccount()]);
+      await Promise.all([loadInstagramAccount(), loadTwitterAccount(), loadThreadsAccount()]);
       setIsLoading(false);
     };
 
@@ -62,6 +81,7 @@ export default function AccountsPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const success = urlParams.get('success');
     const twitterSuccess = urlParams.get('twitter_success');
+    const threadsSuccess = urlParams.get('threads_success');
     const error = urlParams.get('error');
 
     if (success) {
@@ -74,6 +94,11 @@ export default function AccountsPage() {
       // URLからパラメータを削除
       window.history.replaceState({}, '', '/accounts');
       loadTwitterAccount(); // 再読み込み
+    } else if (threadsSuccess) {
+      toast.success('Threadsアカウントが正常に連携されました');
+      // URLからパラメータを削除
+      window.history.replaceState({}, '', '/accounts');
+      loadThreadsAccount(); // 再読み込み
     } else if (error) {
       const errorMessages: Record<string, string> = {
         access_denied: '連携がキャンセルされました',
@@ -128,6 +153,21 @@ export default function AccountsPage() {
     }
   };
 
+  const loadThreadsAccount = async () => {
+    try {
+      const response = await fetch('/api/user/threads');
+      if (response.ok) {
+        const data = await response.json();
+        setThreadsAccount(data);
+      } else {
+        setThreadsAccount(null);
+      }
+    } catch (error) {
+      console.error('Threads account load error:', error);
+      setThreadsAccount(null);
+    }
+  };
+
   const handleInstagramConnect = async () => {
     setIsConnecting(true);
     try {
@@ -147,6 +187,17 @@ export default function AccountsPage() {
       console.error('Twitter connect error:', error);
       toast.error('X連携の開始に失敗しました');
       setIsTwitterConnecting(false);
+    }
+  };
+
+  const handleThreadsConnect = async () => {
+    setIsThreadsConnecting(true);
+    try {
+      window.location.href = '/api/threads/auth';
+    } catch (error) {
+      console.error('Threads connect error:', error);
+      toast.error('Threads連携の開始に失敗しました');
+      setIsThreadsConnecting(false);
     }
   };
 
@@ -314,6 +365,64 @@ export default function AccountsPage() {
       toast.error('X連携の解除に失敗しました');
     } finally {
       setIsTwitterDisconnecting(false);
+    }
+  };
+
+  const handleThreadsDisconnect = async () => {
+    if (!confirm('Threadsの連携を解除しますか？')) {
+      return;
+    }
+
+    setIsThreadsDisconnecting(true);
+    try {
+      const response = await fetch('/api/user/threads', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setThreadsAccount(null);
+        toast.success('Threadsの連携を解除しました');
+      } else {
+        throw new Error('Failed to disconnect Threads');
+      }
+    } catch (error) {
+      console.error('Threads disconnect error:', error);
+      toast.error('Threads連携の解除に失敗しました');
+    } finally {
+      setIsThreadsDisconnecting(false);
+    }
+  };
+
+  const handleThreadsRefresh = async () => {
+    if (!confirm('Threadsトークンの有効期限を更新しますか？')) {
+      return;
+    }
+
+    setIsThreadsRefreshing(true);
+    try {
+      const response = await fetch('/api/threads/refresh', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 成功時にアカウント情報を再読み込み
+        await loadThreadsAccount();
+        toast.success('Threadsトークンが正常に更新されました');
+      } else {
+        if (data.requireReauth) {
+          // 再認証が必要な場合
+          toast.error('トークンの更新に失敗しました。再度認証を行ってください。');
+        } else {
+          throw new Error(data.error || 'Failed to refresh token');
+        }
+      }
+    } catch (error) {
+      console.error('Threads refresh error:', error);
+      toast.error('Threadsトークンの更新に失敗しました');
+    } finally {
+      setIsThreadsRefreshing(false);
     }
   };
 
@@ -594,6 +703,129 @@ export default function AccountsPage() {
               >
                 <X className="w-4 h-4 mr-2" />
                 {isTwitterConnecting ? '連携中...' : 'Xと連携'}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Threads連携 */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+              <MessageCircle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Threads</h2>
+              <p className="text-sm text-gray-600">
+                ストーリー投稿をThreadsに転用する際に必要です。
+              </p>
+            </div>
+          </div>
+
+          {threadsAccount?.isConnected ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-medium">連携済み</span>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">アカウント名:</span>
+                    <span className="font-medium">@{threadsAccount.username}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">ユーザーID:</span>
+                    <span className="font-mono text-xs">{threadsAccount.id}</span>
+                  </div>
+                  {threadsAccount.expiresAt && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">トークン有効期限:</span>
+                      <span
+                        className={`${new Date(threadsAccount.expiresAt).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000 ? 'text-orange-600 font-medium' : 'text-gray-800'}`}
+                      >
+                        {new Date(threadsAccount.expiresAt).toLocaleDateString('ja-JP')}
+                        {new Date(threadsAccount.expiresAt).getTime() - Date.now() <
+                          7 * 24 * 60 * 60 * 1000 && (
+                          <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                            期限切れ間近
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* トークン期限切れ間近の警告 */}
+              {threadsAccount.expiresAt &&
+                new Date(threadsAccount.expiresAt).getTime() - Date.now() <
+                  7 * 24 * 60 * 60 * 1000 && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium text-orange-800">
+                          トークン期限切れ間近
+                        </h4>
+                        <p className="text-sm text-orange-700 mt-1">
+                          アクセストークンの有効期限が近づいています。投稿を継続するために、今すぐトークンの有効期限更新することをお勧めします。
+                        </p>
+                        <Button
+                          onClick={handleThreadsRefresh}
+                          disabled={isThreadsRefreshing}
+                          className="mt-3 bg-orange-600 hover:bg-orange-700 text-white"
+                          size="sm"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          {isThreadsRefreshing ? '更新中...' : '今すぐトークンを更新'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleThreadsRefresh}
+                  disabled={isThreadsRefreshing}
+                  variant="outline"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {isThreadsRefreshing ? '有効期限を更新中...' : '有効期限を更新'}
+                </Button>
+
+                <Button
+                  onClick={handleThreadsDisconnect}
+                  disabled={isThreadsDisconnecting}
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                >
+                  <Unlink className="w-4 h-4 mr-2" />
+                  {isThreadsDisconnecting ? '連携解除中...' : '連携を解除'}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-gray-500">
+                <AlertCircle className="w-5 h-5" />
+                <span>未連携</span>
+              </div>
+
+              <p className="text-sm text-gray-600">
+                Threadsアカウントと連携して、投稿への自動投稿を有効にします。
+              </p>
+
+              <Button
+                onClick={handleThreadsConnect}
+                disabled={isThreadsConnecting}
+                className="bg-black hover:bg-gray-800 text-white"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                {isThreadsConnecting ? '連携中...' : 'Threadsと連携'}
               </Button>
             </div>
           )}
