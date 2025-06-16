@@ -6,6 +6,13 @@ interface ThreadsPublishResult {
   id: string;
 }
 
+interface ThreadsPost {
+  id: string;
+  text: string;
+  permalink: string;
+  timestamp: string;
+}
+
 export class ThreadsService {
   private accessToken: string;
   private userId: string;
@@ -99,7 +106,7 @@ export class ThreadsService {
   /**
    * 投稿情報を取得
    */
-  async getPost(postId: string): Promise<any> {
+  async getPost(postId: string): Promise<ThreadsPost> {
     const response = await fetch(
       `https://graph.threads.net/v1.0/${postId}?fields=id,text,permalink,timestamp&access_token=${this.accessToken}`
     );

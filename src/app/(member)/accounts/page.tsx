@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/app/_components/ui/button';
+import Image from 'next/image';
 import {
   Instagram,
   CheckCircle,
@@ -499,10 +500,12 @@ export default function AccountsPage() {
                 <div className="flex items-center">
                   <div className="mr-2">
                     {igAccount.profilePictureUrl && (
-                      <img
+                      <Image
                         src={igAccount.profilePictureUrl}
                         alt={igAccount.username}
-                        className="rounded-full h-12 w-12 min-w-[48px]"
+                        width={48}
+                        height={48}
+                        className="rounded-full min-w-[48px]"
                       />
                     )}
                   </div>

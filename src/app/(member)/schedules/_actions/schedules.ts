@@ -6,7 +6,7 @@ import { PostingStrategy, PostingScope, ScheduleStatus } from '@prisma/client';
 import { RRule } from 'rrule';
 import { revalidatePath } from 'next/cache';
 import { postToInstagramStories } from '@/app/_services/InstagramService';
-import { postToTwitter, uploadImageToTwitter } from '@/app/_services/TwitterService';
+import { postToTwitter } from '@/app/_services/TwitterService';
 import { ThreadsService } from '@/app/_services/ThreadsService';
 import { getScheduleStats } from '@/app/_services/ScheduleService';
 

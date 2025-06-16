@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/_components/ui/dialog';
 import { Button } from '@/app/_components/ui/button';
 import { Badge } from '@/app/_components/ui/badge';
@@ -40,7 +40,7 @@ export function ScheduleStatsDialog({
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     if (!scheduleId) return;
 
     setLoading(true);
@@ -54,7 +54,7 @@ export function ScheduleStatsDialog({
     } finally {
       setLoading(false);
     }
-  };
+  }, [scheduleId]);
 
   const handleReset = async () => {
     if (!scheduleId) return;
@@ -91,7 +91,7 @@ export function ScheduleStatsDialog({
     if (open && scheduleId) {
       loadStats();
     }
-  }, [open, scheduleId]);
+  }, [open, scheduleId, loadStats]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

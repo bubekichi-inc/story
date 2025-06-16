@@ -392,46 +392,8 @@ async function getTwitterConfig(userId: string): Promise<TwitterConfig | null> {
   }
 }
 
-/**
- * OAuth 1.0a ヘッダーを生成
- */
-async function generateOAuth1Header(
-  method: string,
-  url: string,
-  config: TwitterConfig
-): Promise<string> {
-  const oauth = {
-    oauth_consumer_key: process.env.TWITTER_CONSUMER_KEY!,
-    oauth_token: config.accessToken,
-    oauth_signature_method: 'HMAC-SHA1',
-    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
-    oauth_nonce: crypto.randomBytes(32).toString('hex'),
-    oauth_version: '1.0',
-  };
-
-  // パラメータをソート
-  const sortedParams = Object.keys(oauth)
-    .sort()
-    .map((key) => `${key}=${encodeURIComponent(oauth[key as keyof typeof oauth])}`)
-    .join('&');
-
-  // ベース文字列を作成
-  const baseString = `${method}&${encodeURIComponent(url)}&${encodeURIComponent(sortedParams)}`;
-
-  // 署名キーを作成
-  const signingKey = `${encodeURIComponent(process.env.TWITTER_CONSUMER_SECRET!)}&${encodeURIComponent(config.accessTokenSecret)}`;
-
-  // 署名を生成
-  const signature = crypto.createHmac('sha1', signingKey).update(baseString).digest('base64');
-
-  // Authorizationヘッダーを作成
-  const authHeader = Object.keys(oauth)
-    .map((key) => `${key}="${encodeURIComponent(oauth[key as keyof typeof oauth])}"`)
-    .concat(`oauth_signature="${encodeURIComponent(signature)}"`)
-    .join(', ');
-
-  return `OAuth ${authHeader}`;
-}
+// この関数は現在使用されていないため削除
+// 将来的に必要になった場合は再実装する
 
 /**
  * Twitter認証URLを生成

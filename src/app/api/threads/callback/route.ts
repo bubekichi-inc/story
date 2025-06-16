@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { prisma } from '@/app/_lib/prisma';
 import { createClient } from '@/app/_lib/supabase/server';
 
