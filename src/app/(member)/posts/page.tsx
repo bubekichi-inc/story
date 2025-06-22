@@ -14,6 +14,19 @@ export default async function Posts() {
     redirect('/');
   }
 
+  // ユーザー情報とプランを取得
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      plan: true,
+      subscriptionStatus: true,
+    },
+  });
+
+  if (!dbUser) {
+    redirect('/');
+  }
+
   // ユーザーの投稿を取得
   const posts = await prisma.post.findMany({
     where: { userId: user.id },
@@ -25,5 +38,11 @@ export default async function Posts() {
     orderBy: { order: 'asc' },
   });
 
-  return <PostsContent posts={posts} />;
+  return (
+    <PostsContent
+      posts={posts}
+      userPlan={dbUser.plan}
+      subscriptionStatus={dbUser.subscriptionStatus}
+    />
+  );
 }

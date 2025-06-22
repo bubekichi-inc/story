@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/app/_lib/supabase/server';
 import { prisma } from '@/app/_lib/prisma';
+import { canUserCreatePosts } from '@/app/_lib/plans';
 
 type UploadResult = {
   success: boolean;
@@ -28,6 +29,30 @@ export async function createSinglePost(formData: FormData): Promise<SingleUpload
     return {
       success: false,
       message: 'ログインが必要です',
+    };
+  }
+
+  // プラン制限チェック
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      plan: true,
+      subscriptionStatus: true,
+    },
+  });
+
+  if (!dbUser) {
+    return {
+      success: false,
+      message: 'ユーザー情報が見つかりません',
+    };
+  }
+
+  if (!canUserCreatePosts(dbUser.plan, dbUser.subscriptionStatus)) {
+    return {
+      success: false,
+      message:
+        '投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。プラン管理ページからアップグレードしてください。',
     };
   }
 
@@ -150,6 +175,30 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
     return {
       success: false,
       message: 'ログインが必要です',
+    };
+  }
+
+  // プラン制限チェック
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      plan: true,
+      subscriptionStatus: true,
+    },
+  });
+
+  if (!dbUser) {
+    return {
+      success: false,
+      message: 'ユーザー情報が見つかりません',
+    };
+  }
+
+  if (!canUserCreatePosts(dbUser.plan, dbUser.subscriptionStatus)) {
+    return {
+      success: false,
+      message:
+        '投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。プラン管理ページからアップグレードしてください。',
     };
   }
 

@@ -16,7 +16,11 @@ import { createSinglePost } from '@/app/(member)/posts/_actions/posts';
 import { Plus, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 
-export default function UploadDialog() {
+interface UploadDialogProps {
+  disabled?: boolean;
+}
+
+export default function UploadDialog({ disabled = false }: UploadDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -122,7 +126,10 @@ export default function UploadDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 font-bold">
+        <Button
+          className="bg-gradient-to-r from-purple-600 to-pink-600 font-bold"
+          disabled={disabled}
+        >
           <Plus className="w-4 h-4 mr-1" />
           画像をアップロード
         </Button>

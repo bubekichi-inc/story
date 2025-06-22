@@ -5,6 +5,9 @@ import { deleteMultiplePosts, mergePosts } from '../_actions/posts';
 import UploadDialog from './UploadDialog';
 import PostGrid from './PostGrid';
 import SelectionActions from './SelectionActions';
+import PlanLimitWarning from './PlanLimitWarning';
+import { Plan, SubscriptionStatus } from '@prisma/client';
+import { canUserCreatePosts } from '@/app/_lib/plans';
 
 interface PostImage {
   id: string;
@@ -28,9 +31,11 @@ interface Post {
 
 interface PostsContentProps {
   posts: Post[];
+  userPlan: Plan;
+  subscriptionStatus?: SubscriptionStatus | null;
 }
 
-export default function PostsContent({ posts }: PostsContentProps) {
+export default function PostsContent({ posts, userPlan, subscriptionStatus }: PostsContentProps) {
   const [currentPosts, setCurrentPosts] = useState(posts);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
@@ -120,8 +125,17 @@ export default function PostsContent({ posts }: PostsContentProps) {
     }
   };
 
+  const canCreatePosts = canUserCreatePosts(userPlan, subscriptionStatus);
+
   return (
     <div className="container mx-auto">
+      {/* プラン制限警告 */}
+      {!canCreatePosts && (
+        <div className="mb-6">
+          <PlanLimitWarning plan={userPlan} subscriptionStatus={subscriptionStatus} />
+        </div>
+      )}
+
       {/* アクションエリア */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-6">
@@ -143,7 +157,7 @@ export default function PostsContent({ posts }: PostsContentProps) {
           )}
         </div>
         <div className="flex items-center space-x-6">
-          <UploadDialog />
+          <UploadDialog disabled={!canCreatePosts} />
         </div>
       </div>
 

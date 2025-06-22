@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { User, Menu, Calendar, LogOut, Settings } from 'lucide-react';
+import { User, Menu, Calendar, LogOut, Settings, CreditCard } from 'lucide-react';
 import { signOut } from '@/app/_actions/auth';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
@@ -87,6 +87,12 @@ export default function MemberLayout({ children }: MemberLayoutProps) {
                 <Link href="/schedules" className={getMenuItemClassName('/schedules')}>
                   <Calendar className="size-4" />
                   <span>スケジュール</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/plan" className={getMenuItemClassName('/plan')}>
+                  <CreditCard className="size-4" />
+                  <span>プラン管理</span>
                 </Link>
               </li>
             </ul>
