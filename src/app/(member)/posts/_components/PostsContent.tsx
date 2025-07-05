@@ -6,8 +6,15 @@ import UploadDialog from './UploadDialog';
 import PostGrid from './PostGrid';
 import SelectionActions from './SelectionActions';
 import PlanLimitWarning from './PlanLimitWarning';
-import { Plan, SubscriptionStatus } from '@prisma/client';
-import { canUserCreatePosts } from '@/app/_lib/plans';
+import { canUserCreatePosts } from '@/app/_lib/subscription';
+import { Plan } from '@prisma/client';
+
+interface UserSubscriptionInfo {
+  plan: Plan;
+  isActive: boolean;
+  currentPeriodEnd?: Date;
+  subscriptionStatus?: string;
+}
 
 interface PostImage {
   id: string;
@@ -31,11 +38,10 @@ interface Post {
 
 interface PostsContentProps {
   posts: Post[];
-  userPlan: Plan;
-  subscriptionStatus?: SubscriptionStatus | null;
+  subscriptionInfo: UserSubscriptionInfo;
 }
 
-export default function PostsContent({ posts, userPlan, subscriptionStatus }: PostsContentProps) {
+export default function PostsContent({ posts, subscriptionInfo }: PostsContentProps) {
   const [currentPosts, setCurrentPosts] = useState(posts);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
@@ -125,14 +131,14 @@ export default function PostsContent({ posts, userPlan, subscriptionStatus }: Po
     }
   };
 
-  const canCreatePosts = canUserCreatePosts(userPlan, subscriptionStatus);
+  const canCreatePosts = canUserCreatePosts(subscriptionInfo);
 
   return (
     <div className="container mx-auto">
       {/* プラン制限警告 */}
       {!canCreatePosts && (
         <div className="mb-6">
-          <PlanLimitWarning plan={userPlan} subscriptionStatus={subscriptionStatus} />
+          <PlanLimitWarning subscriptionInfo={subscriptionInfo} />
         </div>
       )}
 

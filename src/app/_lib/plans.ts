@@ -1,4 +1,4 @@
-import { Plan, SubscriptionStatus } from '@prisma/client';
+import { Plan } from '@prisma/client';
 
 export interface PlanLimits {
   canCreatePosts: boolean;
@@ -27,30 +27,6 @@ export const PLAN_CONFIG: Record<Plan, PlanLimits> = {
 
 export function getUserPlanLimits(plan: Plan): PlanLimits {
   return PLAN_CONFIG[plan];
-}
-
-export function canUserCreatePosts(
-  plan: Plan,
-  subscriptionStatus?: SubscriptionStatus | null
-): boolean {
-  if (plan === Plan.FREE) {
-    return false;
-  }
-
-  if (plan === Plan.BASIC) {
-    // BASICプランの場合、サブスクリプションがアクティブである必要がある
-    return subscriptionStatus === SubscriptionStatus.ACTIVE;
-  }
-
-  return false;
-}
-
-export function isPlanActive(plan: Plan, subscriptionStatus?: SubscriptionStatus | null): boolean {
-  if (plan === Plan.FREE) {
-    return true; // FREEプランは常にアクティブ
-  }
-
-  return subscriptionStatus === SubscriptionStatus.ACTIVE;
 }
 
 export function getPlanDisplayName(plan: Plan): string {

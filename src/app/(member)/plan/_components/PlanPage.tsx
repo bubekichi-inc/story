@@ -12,21 +12,21 @@ import {
 } from '@/app/_components/ui/card';
 import { Badge } from '@/app/_components/ui/badge';
 import { Check, CreditCard, Settings } from 'lucide-react';
-import { Plan, SubscriptionStatus } from '@prisma/client';
+import { Plan } from '@prisma/client';
 import { PLAN_CONFIG, getPlanDisplayName, getPlanPrice } from '@/app/_lib/plans';
 
-interface PlanPageProps {
-  user: {
-    id: string;
-    email: string;
-    plan: Plan;
-    subscriptionStatus?: SubscriptionStatus | null;
-    currentPeriodEnd?: Date | null;
-    stripeCustomerId?: string | null;
-  };
+interface UserSubscriptionInfo {
+  plan: Plan;
+  isActive: boolean;
+  currentPeriodEnd?: Date;
+  subscriptionStatus?: string;
 }
 
-export default function PlanPage({ user }: PlanPageProps) {
+interface PlanPageProps {
+  subscriptionInfo: UserSubscriptionInfo;
+}
+
+export default function PlanPage({ subscriptionInfo }: PlanPageProps) {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleUpgrade = async () => {
@@ -82,20 +82,20 @@ export default function PlanPage({ user }: PlanPageProps) {
     }
   };
 
-  const isCurrentPlan = (plan: Plan) => user.plan === plan;
-  const isBasicActive =
-    user.plan === Plan.BASIC && user.subscriptionStatus === SubscriptionStatus.ACTIVE;
+  const isCurrentPlan = (plan: Plan) => subscriptionInfo.plan === plan;
+  const isBasicActive = subscriptionInfo.plan === Plan.BASIC && subscriptionInfo.isActive;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">プラン管理</h1>
         <p className="text-muted-foreground">
-          現在のプラン: <span className="font-semibold">{getPlanDisplayName(user.plan)}</span>
+          現在のプラン:{' '}
+          <span className="font-semibold">{getPlanDisplayName(subscriptionInfo.plan)}</span>
         </p>
-        {user.currentPeriodEnd && (
+        {subscriptionInfo.currentPeriodEnd && (
           <p className="text-sm text-muted-foreground mt-2">
-            次回更新日: {new Date(user.currentPeriodEnd).toLocaleDateString('ja-JP')}
+            次回更新日: {new Date(subscriptionInfo.currentPeriodEnd).toLocaleDateString('ja-JP')}
           </p>
         )}
       </div>
@@ -187,7 +187,7 @@ export default function PlanPage({ user }: PlanPageProps) {
       </div>
 
       {/* サブスクリプション状態の詳細 */}
-      {user.plan === Plan.BASIC && (
+      {subscriptionInfo.plan === Plan.BASIC && (
         <Card>
           <CardHeader>
             <CardTitle>サブスクリプション詳細</CardTitle>
@@ -197,11 +197,11 @@ export default function PlanPage({ user }: PlanPageProps) {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">ステータス</p>
                 <p className="text-lg font-semibold">
-                  {user.subscriptionStatus === SubscriptionStatus.ACTIVE ? (
+                  {subscriptionInfo.isActive ? (
                     <span className="text-green-600">アクティブ</span>
-                  ) : user.subscriptionStatus === SubscriptionStatus.CANCELED ? (
+                  ) : subscriptionInfo.subscriptionStatus === 'canceled' ? (
                     <span className="text-red-600">キャンセル済み</span>
-                  ) : user.subscriptionStatus === SubscriptionStatus.PAST_DUE ? (
+                  ) : subscriptionInfo.subscriptionStatus === 'past_due' ? (
                     <span className="text-yellow-600">支払い遅延</span>
                   ) : (
                     <span className="text-gray-600">不明</span>
@@ -209,11 +209,11 @@ export default function PlanPage({ user }: PlanPageProps) {
                 </p>
               </div>
 
-              {user.currentPeriodEnd && (
+              {subscriptionInfo.currentPeriodEnd && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">次回更新日</p>
                   <p className="text-lg font-semibold">
-                    {new Date(user.currentPeriodEnd).toLocaleDateString('ja-JP', {
+                    {new Date(subscriptionInfo.currentPeriodEnd).toLocaleDateString('ja-JP', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

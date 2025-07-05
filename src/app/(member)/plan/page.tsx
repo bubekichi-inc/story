@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/app/_lib/prisma';
+import { getUserSubscriptionInfo } from '@/app/_lib/subscription';
 import PlanPage from './_components/PlanPage';
 
 export default async function Plan() {
@@ -26,21 +26,7 @@ export default async function Plan() {
     redirect('/login');
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    select: {
-      id: true,
-      email: true,
-      plan: true,
-      subscriptionStatus: true,
-      currentPeriodEnd: true,
-      stripeCustomerId: true,
-    },
-  });
+  const subscriptionInfo = await getUserSubscriptionInfo(authUser.id);
 
-  if (!user) {
-    redirect('/login');
-  }
-
-  return <PlanPage user={user} />;
+  return <PlanPage subscriptionInfo={subscriptionInfo} />;
 }

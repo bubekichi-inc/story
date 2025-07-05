@@ -1,9 +1,7 @@
 import Stripe from 'stripe';
 
 function getStripe(): Stripe {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-05-28.basil',
-  });
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
 }
 
 export interface CreateCheckoutSessionParams {
@@ -96,6 +94,14 @@ export class StripeService {
   // サブスクリプション情報を取得
   static async getSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
     return await getStripe().subscriptions.retrieve(subscriptionId);
+  }
+
+  // 顧客のサブスクリプション一覧を取得
+  static async listSubscriptions(customerId: string): Promise<Stripe.ApiList<Stripe.Subscription>> {
+    return await getStripe().subscriptions.list({
+      customer: customerId,
+      status: 'all',
+    });
   }
 
   // サブスクリプションをキャンセル

@@ -4,19 +4,26 @@ import { Card, CardContent } from '@/app/_components/ui/card';
 import { Button } from '@/app/_components/ui/button';
 import { AlertTriangle, CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Plan, SubscriptionStatus } from '@prisma/client';
+import { Plan } from '@prisma/client';
 
-interface PlanLimitWarningProps {
+interface UserSubscriptionInfo {
   plan: Plan;
-  subscriptionStatus?: SubscriptionStatus | null;
+  isActive: boolean;
+  currentPeriodEnd?: Date;
+  subscriptionStatus?: string;
 }
 
-export default function PlanLimitWarning({ plan, subscriptionStatus }: PlanLimitWarningProps) {
+interface PlanLimitWarningProps {
+  subscriptionInfo: UserSubscriptionInfo;
+}
+
+export default function PlanLimitWarning({ subscriptionInfo }: PlanLimitWarningProps) {
   const router = useRouter();
 
   // FREEプランまたはBASICプランでサブスクリプションが無効な場合に警告を表示
   const shouldShowWarning =
-    plan === Plan.FREE || (plan === Plan.BASIC && subscriptionStatus !== SubscriptionStatus.ACTIVE);
+    subscriptionInfo.plan === Plan.FREE ||
+    (subscriptionInfo.plan === Plan.BASIC && !subscriptionInfo.isActive);
 
   if (!shouldShowWarning) {
     return null;
@@ -36,7 +43,7 @@ export default function PlanLimitWarning({ plan, subscriptionStatus }: PlanLimit
               投稿機能が利用できません
             </h3>
             <div className="space-y-2 text-sm text-yellow-700 dark:text-yellow-300">
-              {plan === Plan.FREE ? (
+              {subscriptionInfo.plan === Plan.FREE ? (
                 <p>
                   現在FREEプランをご利用いただいています。投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。
                 </p>

@@ -9,31 +9,27 @@ datasource db {
 }
 
 model User {
-  id                         String        @id
-  email                      String        @unique
-  createdAt                  DateTime      @default(now()) @map("created_at")
-  updatedAt                  DateTime      @updatedAt @map("updated_at")
-  instagramAccessToken       String?       @map("instagram_access_token")
-  instagramBusinessAccountId String?       @map("instagram_business_account_id")
-  instagramTokenExpiresAt    DateTime?     @map("instagram_token_expires_at")
-  facebookPageId             String?       @map("facebook_page_id")
-  facebookPageAccessToken    String?       @map("facebook_page_access_token")
-  xAccessToken               String?       @map("x_access_token")
-  xAccessTokenSecret         String?       @map("x_access_token_secret")
-  xUserId                    String?       @map("x_user_id")
-  xUsername                  String?       @map("x_username")
-  threadsAccessToken         String?       @map("threads_access_token")
-  threadsUserId              String?       @map("threads_user_id")
-  threadsTokenExpiresAt      DateTime?     @map("threads_token_expires_at")
-  // プラン関連フィールド
-  plan                       Plan          @default(FREE)
-  stripeCustomerId           String?       @map("stripe_customer_id")
-  stripeSubscriptionId       String?       @map("stripe_subscription_id")
-  subscriptionStatus         SubscriptionStatus? @map("subscription_status")
-  currentPeriodEnd          DateTime?     @map("current_period_end")
+  id                         String   @id
+  email                      String   @unique
+  createdAt                  DateTime @default(now()) @map("created_at")
+  updatedAt                  DateTime @updatedAt @map("updated_at")
+  instagramAccessToken       String?  @map("instagram_access_token")
+  instagramBusinessAccountId String?  @map("instagram_business_account_id")
+  instagramTokenExpiresAt    DateTime? @map("instagram_token_expires_at")
+  facebookPageId             String?  @map("facebook_page_id")
+  facebookPageAccessToken    String?  @map("facebook_page_access_token")
+  xAccessToken               String?  @map("x_access_token")
+  xAccessTokenSecret         String?  @map("x_access_token_secret")
+  xUserId                    String?  @map("x_user_id")
+  xUsername                  String?  @map("x_username")
+  threadsAccessToken         String?  @map("threads_access_token")
+  threadsUserId              String?  @map("threads_user_id")
+  threadsTokenExpiresAt      DateTime? @map("threads_token_expires_at")
+  // プラン関連フィールド（最小限）
+  plan                       Plan     @default(FREE)
+  stripeCustomerId           String?  @map("stripe_customer_id")
   posts                      Post[]
   schedules                  Schedule[]
-  payments                   Payment[]
 
   @@map("users")
 }
@@ -131,31 +127,9 @@ model SchedulePost {
   @@map("schedule_posts")
 }
 
-model Payment {
-  id                String   @id @default(cuid())
-  userId            String   @map("user_id")
-  stripePaymentId   String   @unique @map("stripe_payment_id")
-  amount            Int      // 円単位
-  currency          String   @default("jpy")
-  status            String
-  plan              Plan
-  createdAt         DateTime @default(now()) @map("created_at")
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("payments")
-}
-
 enum Plan {
   FREE
   BASIC
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELED
-  PAST_DUE
-  UNPAID
-  INCOMPLETE
 }
 
 enum PostingStrategy {

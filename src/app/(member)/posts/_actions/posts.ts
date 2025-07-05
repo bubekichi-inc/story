@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/app/_lib/supabase/server';
 import { prisma } from '@/app/_lib/prisma';
-import { canUserCreatePosts } from '@/app/_lib/plans';
+import { getUserSubscriptionInfo, canUserCreatePosts } from '@/app/_lib/subscription';
 
 type UploadResult = {
   success: boolean;
@@ -33,26 +33,21 @@ export async function createSinglePost(formData: FormData): Promise<SingleUpload
   }
 
   // プラン制限チェック
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      plan: true,
-      subscriptionStatus: true,
-    },
-  });
+  try {
+    const subscriptionInfo = await getUserSubscriptionInfo(user.id);
 
-  if (!dbUser) {
+    if (!canUserCreatePosts(subscriptionInfo)) {
+      return {
+        success: false,
+        message:
+          '投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。プラン管理ページからアップグレードしてください。',
+      };
+    }
+  } catch (error) {
+    console.error('Subscription check failed:', error);
     return {
       success: false,
-      message: 'ユーザー情報が見つかりません',
-    };
-  }
-
-  if (!canUserCreatePosts(dbUser.plan, dbUser.subscriptionStatus)) {
-    return {
-      success: false,
-      message:
-        '投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。プラン管理ページからアップグレードしてください。',
+      message: 'プラン情報の確認に失敗しました。',
     };
   }
 
@@ -179,26 +174,21 @@ export async function createPost(formData: FormData): Promise<UploadResult> {
   }
 
   // プラン制限チェック
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      plan: true,
-      subscriptionStatus: true,
-    },
-  });
+  try {
+    const subscriptionInfo = await getUserSubscriptionInfo(user.id);
 
-  if (!dbUser) {
+    if (!canUserCreatePosts(subscriptionInfo)) {
+      return {
+        success: false,
+        message:
+          '投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。プラン管理ページからアップグレードしてください。',
+      };
+    }
+  } catch (error) {
+    console.error('Subscription check failed:', error);
     return {
       success: false,
-      message: 'ユーザー情報が見つかりません',
-    };
-  }
-
-  if (!canUserCreatePosts(dbUser.plan, dbUser.subscriptionStatus)) {
-    return {
-      success: false,
-      message:
-        '投稿機能をご利用いただくには、BASICプランへのアップグレードが必要です。プラン管理ページからアップグレードしてください。',
+      message: 'プラン情報の確認に失敗しました。',
     };
   }
 

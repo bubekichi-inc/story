@@ -1,6 +1,7 @@
 import { createClient } from '@/app/_lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/app/_lib/prisma';
+import { getUserSubscriptionInfo } from '@/app/_lib/subscription';
 import PostsContent from './_components/PostsContent';
 
 export default async function Posts() {
@@ -14,18 +15,8 @@ export default async function Posts() {
     redirect('/');
   }
 
-  // ユーザー情報とプランを取得
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      plan: true,
-      subscriptionStatus: true,
-    },
-  });
-
-  if (!dbUser) {
-    redirect('/');
-  }
+  // ユーザーのサブスクリプション情報を取得
+  const subscriptionInfo = await getUserSubscriptionInfo(user.id);
 
   // ユーザーの投稿を取得
   const posts = await prisma.post.findMany({
@@ -38,11 +29,5 @@ export default async function Posts() {
     orderBy: { order: 'asc' },
   });
 
-  return (
-    <PostsContent
-      posts={posts}
-      userPlan={dbUser.plan}
-      subscriptionStatus={dbUser.subscriptionStatus}
-    />
-  );
+  return <PostsContent posts={posts} subscriptionInfo={subscriptionInfo} />;
 }
